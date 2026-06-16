@@ -51,6 +51,10 @@ export const groupMatches: { a: string; sa: number; b: string; sb: number }[] = 
   { a: "NED", sa: 2, b: "JPN", sb: 2 },
   { a: "SWE", sa: 5, b: "TUN", sb: 1 },
   { a: "ESP", sa: 0, b: "CPV", sb: 0 },
+  // June 15 — Groups G and H wrapped up their opening matches (all draws, no win points).
+  { a: "BEL", sa: 1, b: "EGY", sb: 1 },
+  { a: "KSA", sa: 1, b: "URU", sb: 1 },
+  { a: "IRN", sa: 2, b: "NZL", sb: 2 },
 ];
 
 // Per-team tournament status. Update as groups finalize and knockout rounds complete.
