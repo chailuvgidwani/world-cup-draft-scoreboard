@@ -55,6 +55,10 @@ export const groupMatches: { a: string; sa: number; b: string; sb: number }[] = 
   { a: "BEL", sa: 1, b: "EGY", sb: 1 },
   { a: "KSA", sa: 1, b: "URU", sb: 1 },
   { a: "IRN", sa: 2, b: "NZL", sb: 2 },
+  // June 16 — Group I and J openers; France, Norway, and Argentina pick up wins.
+  { a: "FRA", sa: 3, b: "SEN", sb: 1 },
+  { a: "NOR", sa: 4, b: "IRQ", sb: 1 },
+  { a: "ARG", sa: 3, b: "ALG", sb: 0 },
 ];
 
 // Per-team tournament status. Update as groups finalize and knockout rounds complete.
