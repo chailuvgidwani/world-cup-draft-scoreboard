@@ -162,8 +162,14 @@ export default function Home() {
           </span>
         </h1>
         <p className="mt-3 text-sm text-slate-400">
-          {summary.phaseLabel} · {summary.matchesPlayed} group{" "}
-          {summary.matchesPlayed === 1 ? "match" : "matches"} logged
+          {summary.groupStageComplete ? (
+            <>{summary.phaseLabel}</>
+          ) : (
+            <>
+              Group Stage · {summary.matchesPlayed} of {summary.totalGroupGames}{" "}
+              group matches logged
+            </>
+          )}
         </p>
       </header>
 

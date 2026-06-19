@@ -170,19 +170,44 @@ export function computeStandings(): ManagerScore[] {
 
 export type TournamentSummary = {
   matchesPlayed: number;
+  totalGroupGames: number;
+  groupStageComplete: boolean;
   phase: Stage;
   phaseLabel: string;
 };
 
-// A one-line read on where the tournament is: how many group games are logged
-// and the furthest stage any team has reached.
+// Total group-stage games implied by the group sizes. Each group is a round-robin,
+// so a group of n teams plays n*(n-1)/2 games.
+function totalGroupGames(): number {
+  const sizes: Record<string, number> = {};
+  for (const { group } of Object.values(TEAMS)) sizes[group] = (sizes[group] ?? 0) + 1;
+  return Object.values(sizes).reduce((sum, n) => sum + (n * (n - 1)) / 2, 0);
+}
+
+// A one-line read on where the tournament is. While the group stage is still in
+// progress we report "Group Stage" even if a team has already clinched a knockout
+// berth — only once every group game is logged does the phase advance to the
+// deepest stage any team has reached.
 export function tournamentSummary(): TournamentSummary {
   const matchesPlayed = groupMatches.length;
-  let furthestIdx = 0;
-  for (const status of Object.values(teamStatus)) {
-    const idx = STAGE_ORDER.indexOf(status.reached);
-    if (idx > furthestIdx) furthestIdx = idx;
+  const total = totalGroupGames();
+  const groupStageComplete = matchesPlayed >= total;
+
+  let phase: Stage = "group";
+  if (groupStageComplete) {
+    let furthestIdx = 0;
+    for (const status of Object.values(teamStatus)) {
+      const idx = STAGE_ORDER.indexOf(status.reached);
+      if (idx > furthestIdx) furthestIdx = idx;
+    }
+    phase = STAGE_ORDER[furthestIdx];
   }
-  const phase = STAGE_ORDER[furthestIdx];
-  return { matchesPlayed, phase, phaseLabel: STAGE_LABELS[phase] };
+
+  return {
+    matchesPlayed,
+    totalGroupGames: total,
+    groupStageComplete,
+    phase,
+    phaseLabel: STAGE_LABELS[phase],
+  };
 }

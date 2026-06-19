@@ -80,8 +80,7 @@ export const teamStatus: Record<string, { wonGroup: boolean; reached: Stage }> =
   ...Object.fromEntries(
     Object.keys(TEAMS).map((code) => [code, { wonGroup: false, reached: "group" as Stage }])
   ),
-  // June 18 — Mexico clinched 1st in Group A (uncatchable on head-to-head), so they have won
-  // their group (+1). They've also clinched an R32 berth; bump `reached` to "r32" to award the
-  // +3 advancement once we decide to credit advancement at clinch time vs. at group conclusion.
-  MEX: { wonGroup: true, reached: "group" },
+  // June 18 — Mexico clinched 1st in Group A (uncatchable on head-to-head): they won their
+  // group (+1) and, since advancement is credited at clinch time, have reached the R32 (+3).
+  MEX: { wonGroup: true, reached: "r32" },
 };
