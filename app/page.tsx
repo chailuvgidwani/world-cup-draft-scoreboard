@@ -7,6 +7,7 @@ import {
   type ManagerScore,
 } from "@/lib/scoring";
 import { flagFor } from "@/lib/flags";
+import { Nav } from "./Nav";
 
 const RANK_STYLES: Record<
   number,
@@ -172,6 +173,8 @@ export default function Home() {
           )}
         </p>
       </header>
+
+      <Nav active="standings" />
 
       <section aria-label="Standings" className="space-y-3">
         {standings.map((m) => (

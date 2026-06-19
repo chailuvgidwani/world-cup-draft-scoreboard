@@ -211,3 +211,69 @@ export function tournamentSummary(): TournamentSummary {
     phaseLabel: STAGE_LABELS[phase],
   };
 }
+
+// ---- Results view -------------------------------------------------------
+
+export type ResultRow = {
+  a: string;
+  aName: string;
+  b: string;
+  bName: string;
+  sa: number;
+  sb: number;
+  winner: string | null; // team code of the winner, or null for a draw
+};
+
+// Every logged group game, grouped by group letter (A–L), in the order entered.
+export function matchesByGroup(): { group: string; matches: ResultRow[] }[] {
+  const byGroup: Record<string, ResultRow[]> = {};
+  for (const m of groupMatches) {
+    const group = TEAMS[m.a]?.group ?? "?";
+    (byGroup[group] ??= []).push({
+      a: m.a,
+      aName: TEAMS[m.a]?.name ?? m.a,
+      b: m.b,
+      bName: TEAMS[m.b]?.name ?? m.b,
+      sa: m.sa,
+      sb: m.sb,
+      winner: m.sa > m.sb ? m.a : m.sb > m.sa ? m.b : null,
+    });
+  }
+  return Object.keys(byGroup)
+    .sort()
+    .map((group) => ({ group, matches: byGroup[group] }));
+}
+
+export type StatusAward = {
+  code: string;
+  name: string;
+  group: string;
+  wonGroup: boolean;
+  groupWinnerBonus: number;
+  reached: Stage;
+  milestones: Milestone[];
+  total: number;
+};
+
+// Teams whose tournament status contributes points beyond their group-game wins:
+// group winners (+1) and any knockout advancement reached so far.
+export function statusAwards(): StatusAward[] {
+  const out: StatusAward[] = [];
+  for (const [code, st] of Object.entries(teamStatus)) {
+    if (!st.wonGroup && st.reached === "group") continue;
+    const milestones = milestonesFor(st.reached);
+    const groupWinnerBonus = st.wonGroup ? SCORING.groupWinnerBonus : 0;
+    const milestonePoints = milestones.reduce((sum, m) => sum + m.points, 0);
+    out.push({
+      code,
+      name: TEAMS[code]?.name ?? code,
+      group: TEAMS[code]?.group ?? "?",
+      wonGroup: st.wonGroup,
+      groupWinnerBonus,
+      reached: st.reached,
+      milestones,
+      total: groupWinnerBonus + milestonePoints,
+    });
+  }
+  return out.sort((a, b) => a.group.localeCompare(b.group) || a.name.localeCompare(b.name));
+}
