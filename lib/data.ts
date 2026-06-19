@@ -66,11 +66,22 @@ export const groupMatches: { a: string; sa: number; b: string; sb: number }[] = 
   { a: "UZB", sa: 1, b: "COL", sb: 3 },
   { a: "ENG", sa: 4, b: "CRO", sb: 2 },
   { a: "GHA", sa: 1, b: "PAN", sb: 0 },
+  // June 18 (Matchday 2) — Groups A and B. Mexico clinch Group A; Canada and Switzerland also win.
+  { a: "MEX", sa: 1, b: "KOR", sb: 0 },
+  { a: "CZE", sa: 1, b: "RSA", sb: 1 },
+  { a: "SUI", sa: 4, b: "BIH", sb: 1 },
+  { a: "CAN", sa: 6, b: "QAT", sb: 0 },
 ];
 
 // Per-team tournament status. Update as groups finalize and knockout rounds complete.
 // wonGroup: did they finish 1st in their group? reached: furthest stage reached.
 // Default everyone to reached "group" / wonGroup false. No groups have finished yet.
-export const teamStatus: Record<string, { wonGroup: boolean; reached: Stage }> = Object.fromEntries(
-  Object.keys(TEAMS).map((code) => [code, { wonGroup: false, reached: "group" as Stage }])
-);
+export const teamStatus: Record<string, { wonGroup: boolean; reached: Stage }> = {
+  ...Object.fromEntries(
+    Object.keys(TEAMS).map((code) => [code, { wonGroup: false, reached: "group" as Stage }])
+  ),
+  // June 18 — Mexico clinched 1st in Group A (uncatchable on head-to-head), so they have won
+  // their group (+1). They've also clinched an R32 berth; bump `reached` to "r32" to award the
+  // +3 advancement once we decide to credit advancement at clinch time vs. at group conclusion.
+  MEX: { wonGroup: true, reached: "group" },
+};
