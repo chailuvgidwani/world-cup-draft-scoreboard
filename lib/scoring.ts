@@ -3,8 +3,10 @@ import {
   STAGE_ORDER,
   TEAMS,
   ROSTERS,
+  MANAGER_NAMES,
   groupMatches,
   teamStatus,
+  upcomingMatches,
   type Stage,
 } from "./data";
 
@@ -244,6 +246,28 @@ export function matchesByGroup(): { group: string; matches: ResultRow[] }[] {
     .map((group) => ({ group, matches: byGroup[group] }));
 }
 
+// ---- Managers & ownership ----------------------------------------------
+
+// team code -> roster (manager) name that drafted it.
+const OWNER_BY_CODE: Record<string, string> = (() => {
+  const map: Record<string, string> = {};
+  for (const [manager, codes] of Object.entries(ROSTERS)) {
+    for (const code of codes) map[code] = manager;
+  }
+  return map;
+})();
+
+// The display label for a manager (real name if one is set, else the roster name).
+export function managerDisplay(manager: string): string {
+  return MANAGER_NAMES[manager] ?? manager;
+}
+
+// The display name of whoever drafted a given team (null if undrafted).
+export function ownerOf(code: string): string | null {
+  const manager = OWNER_BY_CODE[code];
+  return manager ? managerDisplay(manager) : null;
+}
+
 export type StatusAward = {
   code: string;
   name: string;
@@ -276,4 +300,64 @@ export function statusAwards(): StatusAward[] {
     });
   }
   return out.sort((a, b) => a.group.localeCompare(b.group) || a.name.localeCompare(b.name));
+}
+
+// ---- Upcoming fixtures --------------------------------------------------
+
+export type Fixture = {
+  a: string;
+  aName: string;
+  aOwner: string | null;
+  b: string;
+  bName: string;
+  bOwner: string | null;
+  group: string;
+};
+
+export type FixtureDay = {
+  date: string; // ISO yyyy-mm-dd
+  label: string; // e.g. "Friday, June 19"
+  fixtures: Fixture[];
+};
+
+// Unordered key for a team pairing, so a logged result matches its schedule
+// entry regardless of home/away order.
+function pairKey(a: string, b: string): string {
+  return [a, b].sort().join("-");
+}
+
+// Format an ISO date as a weekday + month + day label, pinned to UTC so a fixed
+// date string never shifts across timezones at build time.
+function formatDay(iso: string): string {
+  const [y, m, d] = iso.split("-").map(Number);
+  return new Date(Date.UTC(y, m - 1, d)).toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+}
+
+// Scheduled fixtures that haven't been played yet (no matching result in
+// groupMatches), grouped by day in chronological order.
+export function upcomingByDay(): FixtureDay[] {
+  const played = new Set(groupMatches.map((m) => pairKey(m.a, m.b)));
+  const byDate: Record<string, Fixture[]> = {};
+
+  for (const f of upcomingMatches) {
+    if (played.has(pairKey(f.a, f.b))) continue;
+    (byDate[f.date] ??= []).push({
+      a: f.a,
+      aName: TEAMS[f.a]?.name ?? f.a,
+      aOwner: ownerOf(f.a),
+      b: f.b,
+      bName: TEAMS[f.b]?.name ?? f.b,
+      bOwner: ownerOf(f.b),
+      group: TEAMS[f.a]?.group ?? "?",
+    });
+  }
+
+  return Object.keys(byDate)
+    .sort()
+    .map((date) => ({ date, label: formatDay(date), fixtures: byDate[date] }));
 }

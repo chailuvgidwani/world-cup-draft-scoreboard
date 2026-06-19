@@ -2,6 +2,7 @@ import {
   matchesByGroup,
   statusAwards,
   tournamentSummary,
+  ownerOf,
   STAGE_SHORT,
   type ResultRow,
 } from "@/lib/scoring";
@@ -16,12 +17,14 @@ export const metadata = {
 function ScoreRow({
   code,
   name,
+  owner,
   score,
   win,
   draw,
 }: {
   code: string;
   name: string;
+  owner: string | null;
   score: number;
   win: boolean;
   draw: boolean;
@@ -37,14 +40,21 @@ function ScoreRow({
         <span className="text-xl leading-none" aria-hidden>
           {flagFor(code)}
         </span>
-        <span className={`truncate ${win ? "font-semibold" : ""} ${tone}`}>
-          {name}
-        </span>
-        {win && (
-          <span className="shrink-0 rounded bg-emerald-400/15 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-300">
-            +2
-          </span>
-        )}
+        <div className="min-w-0">
+          <div className="flex items-center gap-1.5">
+            <span className={`truncate ${win ? "font-semibold" : ""} ${tone}`}>
+              {name}
+            </span>
+            {win && (
+              <span className="shrink-0 rounded bg-emerald-400/15 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-300">
+                +2
+              </span>
+            )}
+          </div>
+          {owner && (
+            <div className="truncate text-xs text-slate-500">{owner}</div>
+          )}
+        </div>
       </div>
       <span className={`shrink-0 text-lg font-bold tabular-nums ${tone}`}>
         {score}
@@ -60,6 +70,7 @@ function MatchCard({ m }: { m: ResultRow }) {
       <ScoreRow
         code={m.a}
         name={m.aName}
+        owner={ownerOf(m.a)}
         score={m.sa}
         win={m.winner === m.a}
         draw={draw}
@@ -68,6 +79,7 @@ function MatchCard({ m }: { m: ResultRow }) {
       <ScoreRow
         code={m.b}
         name={m.bName}
+        owner={ownerOf(m.b)}
         score={m.sb}
         win={m.winner === m.b}
         draw={draw}

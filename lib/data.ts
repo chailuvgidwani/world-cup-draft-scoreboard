@@ -35,6 +35,14 @@ export const ROSTERS: Record<string, string[]> = {
   "Karan": ["ARG", "NOR", "SUI", "URU", "CAN", "EGY", "UZB", "CUW"],
 };
 
+// Real-name labels for managers whose roster name is a team name. Shown on the
+// Upcoming and Results views so people can tell who's playing whom. Managers not
+// listed here are displayed by their roster name as-is.
+export const MANAGER_NAMES: Record<string, string> = {
+  "Vini Vidi Vici": "Pranav",
+  "The Prince Who Was Promised": "Ethan",
+};
+
 // Group-stage match results. Add one object per completed group game.
 // home/away order doesn't matter for scoring. Pre-seeded with the 13 games played as of June 15, 2026.
 export const groupMatches: { a: string; sa: number; b: string; sb: number }[] = [
@@ -84,3 +92,63 @@ export const teamStatus: Record<string, { wonGroup: boolean; reached: Stage }> =
   // group (+1) and, since advancement is credited at clinch time, have reached the R32 (+3).
   MEX: { wonGroup: true, reached: "r32" },
 };
+
+// Scheduled group fixtures (date = local kickoff day). The Upcoming view shows
+// any of these whose result isn't yet recorded in groupMatches — so once a game
+// is logged above it drops off the schedule automatically; no need to delete it
+// here. Order within a day doesn't matter.
+export const upcomingMatches: { date: string; a: string; b: string }[] = [
+  // June 19 — Matchday 2, Groups C & D
+  { date: "2026-06-19", a: "BRA", b: "HAI" },
+  { date: "2026-06-19", a: "SCO", b: "MAR" },
+  { date: "2026-06-19", a: "TUR", b: "PAR" },
+  { date: "2026-06-19", a: "USA", b: "AUS" },
+  // June 20 — Matchday 2, Groups E & F
+  { date: "2026-06-20", a: "GER", b: "CIV" },
+  { date: "2026-06-20", a: "ECU", b: "CUW" },
+  { date: "2026-06-20", a: "NED", b: "SWE" },
+  { date: "2026-06-20", a: "TUN", b: "JPN" },
+  // June 21 — Matchday 2, Groups G & H
+  { date: "2026-06-21", a: "URU", b: "CPV" },
+  { date: "2026-06-21", a: "ESP", b: "KSA" },
+  { date: "2026-06-21", a: "BEL", b: "IRN" },
+  { date: "2026-06-21", a: "NZL", b: "EGY" },
+  // June 22 — Matchday 2, Groups I & J
+  { date: "2026-06-22", a: "NOR", b: "SEN" },
+  { date: "2026-06-22", a: "FRA", b: "IRQ" },
+  { date: "2026-06-22", a: "ARG", b: "AUT" },
+  { date: "2026-06-22", a: "JOR", b: "ALG" },
+  // June 23 — Matchday 2, Groups K & L
+  { date: "2026-06-23", a: "ENG", b: "GHA" },
+  { date: "2026-06-23", a: "PAN", b: "CRO" },
+  { date: "2026-06-23", a: "POR", b: "UZB" },
+  { date: "2026-06-23", a: "COL", b: "COD" },
+  // June 24 — Matchday 3, Groups A, B & C
+  { date: "2026-06-24", a: "SCO", b: "BRA" },
+  { date: "2026-06-24", a: "MAR", b: "HAI" },
+  { date: "2026-06-24", a: "SUI", b: "CAN" },
+  { date: "2026-06-24", a: "BIH", b: "QAT" },
+  { date: "2026-06-24", a: "CZE", b: "MEX" },
+  { date: "2026-06-24", a: "RSA", b: "KOR" },
+  // June 25 — Matchday 3, Groups D, E & F
+  { date: "2026-06-25", a: "CUW", b: "CIV" },
+  { date: "2026-06-25", a: "ECU", b: "GER" },
+  { date: "2026-06-25", a: "JPN", b: "SWE" },
+  { date: "2026-06-25", a: "TUN", b: "NED" },
+  { date: "2026-06-25", a: "TUR", b: "USA" },
+  { date: "2026-06-25", a: "PAR", b: "AUS" },
+  // June 26 — Matchday 3, Groups G, H & I
+  { date: "2026-06-26", a: "NOR", b: "FRA" },
+  { date: "2026-06-26", a: "SEN", b: "IRQ" },
+  { date: "2026-06-26", a: "EGY", b: "IRN" },
+  { date: "2026-06-26", a: "NZL", b: "BEL" },
+  { date: "2026-06-26", a: "CPV", b: "KSA" },
+  { date: "2026-06-26", a: "URU", b: "ESP" },
+  // June 27 — Matchday 3, Groups J, K & L
+  { date: "2026-06-27", a: "PAN", b: "ENG" },
+  { date: "2026-06-27", a: "CRO", b: "GHA" },
+  { date: "2026-06-27", a: "ALG", b: "AUT" },
+  { date: "2026-06-27", a: "JOR", b: "ARG" },
+  { date: "2026-06-27", a: "COL", b: "POR" },
+  { date: "2026-06-27", a: "COD", b: "UZB" },
+];
