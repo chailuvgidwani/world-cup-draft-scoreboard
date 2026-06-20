@@ -79,6 +79,9 @@ export const groupMatches: { a: string; sa: number; b: string; sb: number }[] = 
   { a: "CZE", sa: 1, b: "RSA", sb: 1 },
   { a: "SUI", sa: 4, b: "BIH", sb: 1 },
   { a: "CAN", sa: 6, b: "QAT", sb: 0 },
+  // June 19 (Matchday 2) — Groups C and D. USA and Morocco take wins.
+  { a: "USA", sa: 2, b: "AUS", sb: 0 },
+  { a: "SCO", sa: 0, b: "MAR", sb: 1 },
 ];
 
 // Per-team tournament status. Update as groups finalize and knockout rounds complete.
