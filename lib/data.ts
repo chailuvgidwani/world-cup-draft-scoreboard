@@ -79,6 +79,13 @@ export const groupMatches: { a: string; sa: number; b: string; sb: number }[] = 
   { a: "CZE", sa: 1, b: "RSA", sb: 1 },
   { a: "SUI", sa: 4, b: "BIH", sb: 1 },
   { a: "CAN", sa: 6, b: "QAT", sb: 0 },
+  // June 19 — Matchday 2, Groups C & D. Morocco, Brazil, USA, and Paraguay win.
+  { a: "SCO", sa: 0, b: "MAR", sb: 1 },
+  { a: "BRA", sa: 3, b: "HAI", sb: 0 },
+  { a: "USA", sa: 2, b: "AUS", sb: 0 },
+  { a: "TUR", sa: 0, b: "PAR", sb: 1 },
+  // June 20 — Matchday 2, Group F. Netherlands rout Sweden (Tunisia–Japan still to come).
+  { a: "NED", sa: 5, b: "SWE", sb: 1 },
 ];
 
 // Per-team tournament status. Update as groups finalize and knockout rounds complete.
@@ -91,6 +98,9 @@ export const teamStatus: Record<string, { wonGroup: boolean; reached: Stage }> =
   // June 18 — Mexico clinched 1st in Group A (uncatchable on head-to-head): they won their
   // group (+1) and, since advancement is credited at clinch time, have reached the R32 (+3).
   MEX: { wonGroup: true, reached: "r32" },
+  // June 19 — USA clinched 1st in Group D (beat both group rivals, so uncatchable on
+  // head-to-head): won their group (+1) and reached the R32 (+3).
+  USA: { wonGroup: true, reached: "r32" },
 };
 
 // Scheduled group fixtures (date = local kickoff day). The Upcoming view shows
