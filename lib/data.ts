@@ -86,6 +86,19 @@ export const groupMatches: { a: string; sa: number; b: string; sb: number }[] = 
   { a: "TUR", sa: 0, b: "PAR", sb: 1 },
   // June 20 — Matchday 2, Group F. Netherlands rout Sweden (Tunisia–Japan still to come).
   { a: "NED", sa: 5, b: "SWE", sb: 1 },
+  // June 20 — Matchday 2, Group E. Germany see off Ivory Coast; Ecuador–Curacao goalless.
+  { a: "GER", sa: 2, b: "CIV", sb: 1 },
+  { a: "ECU", sa: 0, b: "CUW", sb: 0 },
+  // June 20 — Group F. Japan thump Tunisia (now eliminated).
+  { a: "JPN", sa: 4, b: "TUN", sb: 0 },
+  // June 21 — Matchday 2, Groups G & H.
+  { a: "EGY", sa: 3, b: "NZL", sb: 1 },
+  { a: "BEL", sa: 0, b: "IRN", sb: 0 },
+  { a: "ESP", sa: 4, b: "KSA", sb: 0 },
+  { a: "URU", sa: 2, b: "CPV", sb: 2 },
+  // June 22 — Matchday 2, Groups I & J (each group's second game still to come).
+  { a: "FRA", sa: 3, b: "IRQ", sb: 0 },
+  { a: "ARG", sa: 2, b: "AUT", sb: 0 },
 ];
 
 // Per-team tournament status. Update as groups finalize and knockout rounds complete.
@@ -101,6 +114,13 @@ export const teamStatus: Record<string, { wonGroup: boolean; reached: Stage }> =
   // June 19 — USA clinched 1st in Group D (beat both group rivals, so uncatchable on
   // head-to-head): won their group (+1) and reached the R32 (+3).
   USA: { wonGroup: true, reached: "r32" },
+  // June 20 — Germany clinched 1st in Group E (uncatchable on head-to-head over Ivory Coast):
+  // won their group (+1) and reached the R32 (+3).
+  GER: { wonGroup: true, reached: "r32" },
+  // June 22 — France and Argentina have clinched knockout berths (Wikipedia "(A)"), but 1st
+  // place in their groups is still open, so they get R32 advancement (+3) without the bonus yet.
+  FRA: { wonGroup: false, reached: "r32" },
+  ARG: { wonGroup: false, reached: "r32" },
 };
 
 // Scheduled group fixtures (date = local kickoff day). The Upcoming view shows
