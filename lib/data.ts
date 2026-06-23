@@ -96,9 +96,11 @@ export const groupMatches: { a: string; sa: number; b: string; sb: number }[] = 
   { a: "BEL", sa: 0, b: "IRN", sb: 0 },
   { a: "ESP", sa: 4, b: "KSA", sb: 0 },
   { a: "URU", sa: 2, b: "CPV", sb: 2 },
-  // June 22 — Matchday 2, Groups I & J (each group's second game still to come).
+  // June 22 — Matchday 2, Groups I & J.
   { a: "FRA", sa: 3, b: "IRQ", sb: 0 },
   { a: "ARG", sa: 2, b: "AUT", sb: 0 },
+  // June 22 — Norway beat Senegal to complete Group I; Norway and France both go through.
+  { a: "NOR", sa: 3, b: "SEN", sb: 2 },
 ];
 
 // Per-team tournament status. Update as groups finalize and knockout rounds complete.
@@ -121,6 +123,9 @@ export const teamStatus: Record<string, { wonGroup: boolean; reached: Stage }> =
   // place in their groups is still open, so they get R32 advancement (+3) without the bonus yet.
   FRA: { wonGroup: false, reached: "r32" },
   ARG: { wonGroup: false, reached: "r32" },
+  // June 22 — Norway also clinched a knockout berth in Group I (level with France on points;
+  // 1st is decided when they meet on matchday 3), so R32 advancement (+3) only.
+  NOR: { wonGroup: false, reached: "r32" },
 };
 
 // Scheduled group fixtures (date = local kickoff day). The Upcoming view shows
