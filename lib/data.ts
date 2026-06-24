@@ -106,6 +106,9 @@ export const groupMatches: { a: string; sa: number; b: string; sb: number }[] = 
   { a: "ALG", sa: 2, b: "JOR", sb: 1 },
   { a: "POR", sa: 5, b: "UZB", sb: 0 },
   { a: "ENG", sa: 0, b: "GHA", sb: 0 },
+  // June 23 — Colombia (Group K) and Croatia (Group L) win to finish matchday 2 league-wide.
+  { a: "COL", sa: 1, b: "COD", sb: 0 },
+  { a: "CRO", sa: 1, b: "PAN", sb: 0 },
 ];
 
 // Per-team tournament status. Update as groups finalize and knockout rounds complete.
@@ -133,6 +136,9 @@ export const teamStatus: Record<string, { wonGroup: boolean; reached: Stage }> =
   // June 22 — Norway also clinched a knockout berth in Group I (level with France on points;
   // 1st is decided when they meet on matchday 3), so R32 advancement (+3) only.
   NOR: { wonGroup: false, reached: "r32" },
+  // June 23 — Colombia clinched a knockout berth in Group K (Wikipedia "(A)"); 1st is still
+  // open (decided vs Portugal on matchday 3), so R32 advancement (+3) only.
+  COL: { wonGroup: false, reached: "r32" },
 };
 
 // Scheduled group fixtures (date = local kickoff day). The Upcoming view shows
