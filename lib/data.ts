@@ -101,6 +101,11 @@ export const groupMatches: { a: string; sa: number; b: string; sb: number }[] = 
   { a: "ARG", sa: 2, b: "AUT", sb: 0 },
   // June 22 — Norway beat Senegal to complete Group I; Norway and France both go through.
   { a: "NOR", sa: 3, b: "SEN", sb: 2 },
+  // June 23 — Matchday 2 wraps: Algeria edge Jordan (Group J), Portugal rout Uzbekistan
+  // (Group K), England held by Ghana (Group L).
+  { a: "ALG", sa: 2, b: "JOR", sb: 1 },
+  { a: "POR", sa: 5, b: "UZB", sb: 0 },
+  { a: "ENG", sa: 0, b: "GHA", sb: 0 },
 ];
 
 // Per-team tournament status. Update as groups finalize and knockout rounds complete.
@@ -119,10 +124,12 @@ export const teamStatus: Record<string, { wonGroup: boolean; reached: Stage }> =
   // June 20 — Germany clinched 1st in Group E (uncatchable on head-to-head over Ivory Coast):
   // won their group (+1) and reached the R32 (+3).
   GER: { wonGroup: true, reached: "r32" },
-  // June 22 — France and Argentina have clinched knockout berths (Wikipedia "(A)"), but 1st
-  // place in their groups is still open, so they get R32 advancement (+3) without the bonus yet.
+  // June 22 — France clinched a knockout berth (Wikipedia "(A)") but Group I's 1st place is
+  // still open (decided when France & Norway meet), so R32 advancement (+3) without the bonus.
   FRA: { wonGroup: false, reached: "r32" },
-  ARG: { wonGroup: false, reached: "r32" },
+  // June 23 — Group J complete: Argentina clinched 1st (uncatchable on head-to-head over
+  // Austria and Algeria), upgrading to group winner (+1) on top of R32 (+3).
+  ARG: { wonGroup: true, reached: "r32" },
   // June 22 — Norway also clinched a knockout berth in Group I (level with France on points;
   // 1st is decided when they meet on matchday 3), so R32 advancement (+3) only.
   NOR: { wonGroup: false, reached: "r32" },
