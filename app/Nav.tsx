@@ -4,17 +4,22 @@ const TABS = [
   { href: "/", key: "standings", label: "Standings" },
   { href: "/upcoming", key: "upcoming", label: "Upcoming" },
   { href: "/results", key: "results", label: "Results" },
+  { href: "/scenarios", key: "scenarios", label: "Scenarios" },
 ] as const;
 
-// Pill tab-switcher shared by the Standings, Upcoming, and Results pages.
-export function Nav({ active }: { active: "standings" | "upcoming" | "results" }) {
+// Pill tab-switcher shared across pages.
+export function Nav({
+  active,
+}: {
+  active: "standings" | "upcoming" | "results" | "scenarios";
+}) {
   return (
-    <nav className="mx-auto mb-6 flex max-w-sm gap-1 rounded-full border border-slate-800 bg-slate-900/50 p-1">
+    <nav className="mx-auto mb-6 flex max-w-md gap-1 rounded-full border border-slate-800 bg-slate-900/50 p-1">
       {TABS.map((tab) => (
         <Link
           key={tab.key}
           href={tab.href}
-          className={`flex-1 rounded-full px-3 py-1.5 text-center text-sm font-medium transition-colors ${
+          className={`flex-1 rounded-full px-2.5 py-1.5 text-center text-[13px] font-medium transition-colors ${
             active === tab.key
               ? "bg-slate-100 text-slate-900"
               : "text-slate-400 hover:text-slate-200"

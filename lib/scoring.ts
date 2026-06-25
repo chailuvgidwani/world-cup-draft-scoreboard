@@ -361,3 +361,67 @@ export function upcomingByDay(): FixtureDay[] {
     .sort()
     .map((date) => ({ date, label: formatDay(date), fixtures: byDate[date] }));
 }
+
+// ---- Scenario simulator -------------------------------------------------
+
+export type ScenarioTeam = {
+  code: string;
+  name: string;
+  group: string;
+  manager: string; // roster (manager) name
+  ownerLabel: string; // display name (real name where set)
+  groupWinPoints: number; // fixed: group-stage win points already banked
+  wonGroupBonus: number; // fixed: 0 or +1
+  reached: Stage; // confirmed furthest stage so far (the floor for projections)
+  eliminated: boolean; // true once the team is mathematically out (locked)
+};
+
+// Per-team state for the Scenarios tab: the fixed points each team has banked,
+// the confirmed stage it has reached (the floor a user can project up from), and
+// whether it has been eliminated (its group finished and it placed last).
+export function scenarioTeams(): ScenarioTeam[] {
+  const stats = computeGroupStats();
+
+  // Games logged per group, and within-group ranking (to spot the eliminated 4th).
+  const gamesByGroup: Record<string, number> = {};
+  const groups: Record<string, string[]> = {};
+  for (const [code, t] of Object.entries(TEAMS)) (groups[t.group] ??= []).push(code);
+  for (const m of groupMatches) {
+    const g = TEAMS[m.a]?.group;
+    if (g) gamesByGroup[g] = (gamesByGroup[g] ?? 0) + 1;
+  }
+  const rankInGroup: Record<string, number> = {};
+  for (const codes of Object.values(groups)) {
+    [...codes]
+      .sort((a, b) => {
+        const A = stats[a];
+        const B = stats[b];
+        const pa = A.wins * 3 + A.draws;
+        const pb = B.wins * 3 + B.draws;
+        return pb - pa || B.gf - B.ga - (A.gf - A.ga) || B.gf - A.gf || a.localeCompare(b);
+      })
+      .forEach((code, i) => (rankInGroup[code] = i + 1));
+  }
+
+  const ownerByCode: Record<string, string> = {};
+  for (const [manager, codes] of Object.entries(ROSTERS))
+    for (const code of codes) ownerByCode[code] = manager;
+
+  return Object.entries(TEAMS).map(([code, t]) => {
+    const st = teamStatus[code] ?? { wonGroup: false, reached: "group" as Stage };
+    const manager = ownerByCode[code] ?? "—";
+    const groupDone = (gamesByGroup[t.group] ?? 0) >= 6;
+    return {
+      code,
+      name: t.name,
+      group: t.group,
+      manager,
+      ownerLabel: MANAGER_NAMES[manager] ?? manager,
+      groupWinPoints: (stats[code]?.wins ?? 0) * SCORING.groupWin,
+      wonGroupBonus: st.wonGroup ? SCORING.groupWinnerBonus : 0,
+      reached: st.reached,
+      // Locked out only when its group is complete and it finished bottom (4th).
+      eliminated: groupDone && st.reached === "group" && rankInGroup[code] === 4,
+    };
+  });
+}
