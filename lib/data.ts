@@ -116,6 +116,10 @@ export const groupMatches: { a: string; sa: number; b: string; sb: number }[] = 
   { a: "BIH", sa: 3, b: "QAT", sb: 1 },
   { a: "BRA", sa: 3, b: "SCO", sb: 0 },
   { a: "MAR", sa: 4, b: "HAI", sb: 2 },
+  // June 25 — Group E finishes: Ivory Coast beat Curacao; Ecuador stun Germany (Germany still
+  // top the group on head-to-head, so they keep 1st).
+  { a: "CIV", sa: 2, b: "CUW", sb: 0 },
+  { a: "ECU", sa: 2, b: "GER", sb: 1 },
 ];
 
 // Per-team tournament status. Update as groups finalize and knockout rounds complete.
@@ -155,6 +159,9 @@ export const teamStatus: Record<string, { wonGroup: boolean; reached: Stage }> =
   BIH: { wonGroup: false, reached: "r32" },
   BRA: { wonGroup: true, reached: "r32" },
   MAR: { wonGroup: false, reached: "r32" },
+  // June 25 — Group E done: Germany win the group on head-to-head over Ivory Coast (already
+  // logged); Ivory Coast advance as runners-up. Ecuador (3rd, 4 pts) awaits the best-third call.
+  CIV: { wonGroup: false, reached: "r32" },
 };
 
 // Scheduled group fixtures (date = local kickoff day). The Upcoming view shows
