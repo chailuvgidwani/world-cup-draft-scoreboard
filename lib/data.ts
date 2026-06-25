@@ -109,6 +109,13 @@ export const groupMatches: { a: string; sa: number; b: string; sb: number }[] = 
   // June 23 — Colombia (Group K) and Croatia (Group L) win to finish matchday 2 league-wide.
   { a: "COL", sa: 1, b: "COD", sb: 0 },
   { a: "CRO", sa: 1, b: "PAN", sb: 0 },
+  // June 24-25 — Matchday 3 begins; Groups A, B and C wrap up.
+  { a: "MEX", sa: 3, b: "CZE", sb: 0 },
+  { a: "RSA", sa: 1, b: "KOR", sb: 0 },
+  { a: "SUI", sa: 2, b: "CAN", sb: 1 },
+  { a: "BIH", sa: 3, b: "QAT", sb: 1 },
+  { a: "BRA", sa: 3, b: "SCO", sb: 0 },
+  { a: "MAR", sa: 4, b: "HAI", sb: 2 },
 ];
 
 // Per-team tournament status. Update as groups finalize and knockout rounds complete.
@@ -139,6 +146,15 @@ export const teamStatus: Record<string, { wonGroup: boolean; reached: Stage }> =
   // June 23 — Colombia clinched a knockout berth in Group K (Wikipedia "(A)"); 1st is still
   // open (decided vs Portugal on matchday 3), so R32 advancement (+3) only.
   COL: { wonGroup: false, reached: "r32" },
+  // June 25 — Groups A, B and C finished. New group winners (bonus + R32): Switzerland (B) and
+  // Brazil (C); Mexico (A) was already logged. Other qualifiers reach the R32: South Africa
+  // (A, 2nd), Canada (B, 2nd), Bosnia (B, best 3rd), Morocco (C, 2nd).
+  RSA: { wonGroup: false, reached: "r32" },
+  SUI: { wonGroup: true, reached: "r32" },
+  CAN: { wonGroup: false, reached: "r32" },
+  BIH: { wonGroup: false, reached: "r32" },
+  BRA: { wonGroup: true, reached: "r32" },
+  MAR: { wonGroup: false, reached: "r32" },
 };
 
 // Scheduled group fixtures (date = local kickoff day). The Upcoming view shows
