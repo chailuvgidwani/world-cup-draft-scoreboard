@@ -119,6 +119,9 @@ function ManagerCard({
           <div className="text-[10px] uppercase tracking-wide text-slate-400">
             points
           </div>
+          <div className="mt-1 text-[10px] tabular-nums text-slate-500">
+            max {m.maxTotal}
+          </div>
         </div>
         <svg
           className="chevron h-5 w-5 shrink-0 text-slate-500 transition-transform duration-200"
@@ -181,6 +184,12 @@ export default function Home() {
           <ManagerCard key={m.manager} m={m} leaderTotal={leaderTotal} />
         ))}
       </section>
+
+      <p className="mt-3 px-1 text-center text-[11px] leading-relaxed text-slate-500">
+        <span className="text-slate-400">max</span> = the highest total still
+        reachable if every surviving team went as deep as the bracket allows (one
+        champion, two finalists, …). It falls as teams are eliminated.
+      </p>
 
       <details className="mt-6 rounded-2xl border border-slate-700/50 bg-slate-900/40 backdrop-blur-sm">
         <summary className="flex cursor-pointer select-none items-center gap-2 px-4 py-3 text-sm font-semibold text-slate-200 active:bg-white/5">

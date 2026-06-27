@@ -67,12 +67,15 @@ export type TeamScore = {
   milestones: Milestone[];
   milestonePoints: number;
   total: number;
+  eliminated: boolean; // true once the team can score no more points
+  maxGroupPoints: number; // best-case group-stage points (win out + group title if still open)
 };
 
 export type ManagerScore = {
   rank: number;
   manager: string;
   total: number;
+  maxTotal: number; // ceiling: sum of every team's best-case final total
   teams: TeamScore[];
 };
 
@@ -120,20 +123,68 @@ function milestonesFor(reached: Stage): Milestone[] {
   return out;
 }
 
-function scoreTeam(code: string, stats: Record<string, GroupStat>): TeamScore {
+function milestonePointsFor(reached: Stage): number {
+  return milestonesFor(reached).reduce((sum, m) => sum + m.points, 0);
+}
+
+// Shared per-group context: how many games each group has logged, and each team's
+// current rank within its group (used to spot the eliminated last-place team).
+function groupContext(stats: Record<string, GroupStat>) {
+  const gamesByGroup: Record<string, number> = {};
+  const groups: Record<string, string[]> = {};
+  for (const [code, t] of Object.entries(TEAMS)) (groups[t.group] ??= []).push(code);
+  for (const m of groupMatches) {
+    const g = TEAMS[m.a]?.group;
+    if (g) gamesByGroup[g] = (gamesByGroup[g] ?? 0) + 1;
+  }
+  const rankInGroup: Record<string, number> = {};
+  for (const codes of Object.values(groups)) {
+    [...codes]
+      .sort((a, b) => {
+        const A = stats[a];
+        const B = stats[b];
+        const pa = A.wins * 3 + A.draws;
+        const pb = B.wins * 3 + B.draws;
+        return pb - pa || B.gf - B.ga - (A.gf - A.ga) || B.gf - A.gf || a.localeCompare(b);
+      })
+      .forEach((code, i) => (rankInGroup[code] = i + 1));
+  }
+  return { gamesByGroup, rankInGroup };
+}
+
+function scoreTeam(
+  code: string,
+  stats: Record<string, GroupStat>,
+  gamesByGroup: Record<string, number>,
+  rankInGroup: Record<string, number>,
+): TeamScore {
   const team = TEAMS[code];
   const status = teamStatus[code] ?? { wonGroup: false, reached: "group" as Stage };
   const stat = stats[code] ?? { played: 0, wins: 0, draws: 0, losses: 0, gf: 0, ga: 0 };
+  const group = team?.group ?? "?";
 
   const groupWinPoints = stat.wins * SCORING.groupWin;
   const groupWinnerBonus = status.wonGroup ? SCORING.groupWinnerBonus : 0;
   const milestones = milestonesFor(status.reached);
   const milestonePoints = milestones.reduce((sum, m) => sum + m.points, 0);
 
+  // Best-case group-stage points: win every remaining group game, plus the group
+  // title if the group is still open. Eliminated = group done and finished last.
+  const groupComplete = (gamesByGroup[group] ?? 0) >= 6;
+  const eliminated = groupComplete && status.reached === "group" && rankInGroup[code] === 4;
+  const remainingGroupGames = Math.max(0, 3 - stat.played);
+  const maxGroupWinnerBonus = status.wonGroup
+    ? SCORING.groupWinnerBonus
+    : groupComplete
+      ? 0
+      : SCORING.groupWinnerBonus;
+  const maxGroupPoints =
+    (stat.wins + remainingGroupGames) * SCORING.groupWin + maxGroupWinnerBonus;
+
   return {
     code,
     name: team?.name ?? code,
-    group: team?.group ?? "?",
+    group,
     stat,
     groupWinPoints,
     wonGroup: status.wonGroup,
@@ -142,20 +193,45 @@ function scoreTeam(code: string, stats: Record<string, GroupStat>): TeamScore {
     milestones,
     milestonePoints,
     total: groupWinPoints + groupWinnerBonus + milestonePoints,
+    eliminated,
+    maxGroupPoints,
   };
 }
+
+// Knockout milestone values awarded by bracket depth, deepest first, with real
+// capacity: 1 champion (25), 1 other finalist (17), 2 semifinalists (12), 4
+// quarterfinalists (8), 8 round-of-16 (5), 16 round-of-32 (3). A manager's max
+// assumes their surviving teams take the deepest still-available slots.
+const KO_SLOTS: number[] = [
+  milestonePointsFor("champion"),
+  milestonePointsFor("final"),
+  ...Array<number>(2).fill(milestonePointsFor("sf")),
+  ...Array<number>(4).fill(milestonePointsFor("qf")),
+  ...Array<number>(8).fill(milestonePointsFor("r16")),
+  ...Array<number>(16).fill(milestonePointsFor("r32")),
+];
 
 // Compute the full leaderboard: managers sorted by total points (desc), with
 // shared ranks for ties, and each manager's teams sorted by points (desc).
 export function computeStandings(): ManagerScore[] {
   const stats = computeGroupStats();
+  const { gamesByGroup, rankInGroup } = groupContext(stats);
 
   const unranked = Object.entries(ROSTERS).map(([manager, codes]) => {
     const teams = codes
-      .map((code) => scoreTeam(code, stats))
+      .map((code) => scoreTeam(code, stats, gamesByGroup, rankInGroup))
       .sort((a, b) => b.total - a.total || a.name.localeCompare(b.name));
     const total = teams.reduce((sum, t) => sum + t.total, 0);
-    return { manager, total, teams };
+    // Ceiling: eliminated teams keep what they've banked; surviving teams win out
+    // in their groups and fill the deepest available knockout slots.
+    const alive = teams.filter((t) => !t.eliminated);
+    const eliminatedPoints = teams
+      .filter((t) => t.eliminated)
+      .reduce((sum, t) => sum + t.total, 0);
+    const groupCeiling = alive.reduce((sum, t) => sum + t.maxGroupPoints, 0);
+    const koCeiling = KO_SLOTS.slice(0, alive.length).reduce((sum, v) => sum + v, 0);
+    const maxTotal = eliminatedPoints + groupCeiling + koCeiling;
+    return { manager, total, maxTotal, teams };
   });
 
   unranked.sort((a, b) => b.total - a.total || a.manager.localeCompare(b.manager));
