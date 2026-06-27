@@ -120,6 +120,15 @@ export const groupMatches: { a: string; sa: number; b: string; sb: number }[] = 
   // top the group on head-to-head, so they keep 1st).
   { a: "CIV", sa: 2, b: "CUW", sb: 0 },
   { a: "ECU", sa: 2, b: "GER", sb: 1 },
+  // June 25-26 — Matchday 3 completes Groups D, F, H and I.
+  { a: "TUR", sa: 3, b: "USA", sb: 2 },
+  { a: "AUS", sa: 0, b: "PAR", sb: 0 },
+  { a: "JPN", sa: 1, b: "SWE", sb: 1 },
+  { a: "NED", sa: 3, b: "TUN", sb: 1 },
+  { a: "CPV", sa: 0, b: "KSA", sb: 0 },
+  { a: "ESP", sa: 1, b: "URU", sb: 0 },
+  { a: "FRA", sa: 4, b: "NOR", sb: 1 },
+  { a: "SEN", sa: 5, b: "IRQ", sb: 0 },
 ];
 
 // Per-team tournament status. Update as groups finalize and knockout rounds complete.
@@ -138,9 +147,9 @@ export const teamStatus: Record<string, { wonGroup: boolean; reached: Stage }> =
   // June 20 — Germany clinched 1st in Group E (uncatchable on head-to-head over Ivory Coast):
   // won their group (+1) and reached the R32 (+3).
   GER: { wonGroup: true, reached: "r32" },
-  // June 22 — France clinched a knockout berth (Wikipedia "(A)") but Group I's 1st place is
-  // still open (decided when France & Norway meet), so R32 advancement (+3) without the bonus.
-  FRA: { wonGroup: false, reached: "r32" },
+  // June 26 — France won Group I outright (3 wins, beat Norway on matchday 3): group bonus
+  // (+1) on top of R32 (+3).
+  FRA: { wonGroup: true, reached: "r32" },
   // June 23 — Group J complete: Argentina clinched 1st (uncatchable on head-to-head over
   // Austria and Algeria), upgrading to group winner (+1) on top of R32 (+3).
   ARG: { wonGroup: true, reached: "r32" },
@@ -162,6 +171,23 @@ export const teamStatus: Record<string, { wonGroup: boolean; reached: Stage }> =
   // June 25 — Group E done: Germany win the group on head-to-head over Ivory Coast (already
   // logged); Ivory Coast advance as runners-up. Ecuador (3rd, 4 pts) awaits the best-third call.
   CIV: { wonGroup: false, reached: "r32" },
+  // June 25-26 — Groups D, F, H, I finished and FIFA confirmed more qualifiers (Wikipedia "(A)").
+  // New group winners (bonus + R32): Netherlands (F), Spain (H). Runners-up / best-thirds reach
+  // the R32: Australia (D), Paraguay (D, best 3rd), Ecuador (E, best 3rd), Japan (F), Sweden
+  // (F, best 3rd), Cape Verde (H). Early clinchers in still-open groups: Egypt (G), Portugal
+  // (K), England and Ghana (L).
+  AUS: { wonGroup: false, reached: "r32" },
+  PAR: { wonGroup: false, reached: "r32" },
+  ECU: { wonGroup: false, reached: "r32" },
+  NED: { wonGroup: true, reached: "r32" },
+  JPN: { wonGroup: false, reached: "r32" },
+  SWE: { wonGroup: false, reached: "r32" },
+  CPV: { wonGroup: false, reached: "r32" },
+  ESP: { wonGroup: true, reached: "r32" },
+  EGY: { wonGroup: false, reached: "r32" },
+  POR: { wonGroup: false, reached: "r32" },
+  ENG: { wonGroup: false, reached: "r32" },
+  GHA: { wonGroup: false, reached: "r32" },
 };
 
 // Scheduled group fixtures (date = local kickoff day). The Upcoming view shows
