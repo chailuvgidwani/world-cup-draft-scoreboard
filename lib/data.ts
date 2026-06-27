@@ -129,6 +129,11 @@ export const groupMatches: { a: string; sa: number; b: string; sb: number }[] = 
   { a: "ESP", sa: 1, b: "URU", sb: 0 },
   { a: "FRA", sa: 4, b: "NOR", sb: 1 },
   { a: "SEN", sa: 5, b: "IRQ", sb: 0 },
+  // June 27 — Groups G and L finish. Belgium edge Group G on goal difference; England top L.
+  { a: "BEL", sa: 5, b: "NZL", sb: 1 },
+  { a: "EGY", sa: 1, b: "IRN", sb: 1 },
+  { a: "ENG", sa: 2, b: "PAN", sb: 0 },
+  { a: "CRO", sa: 2, b: "GHA", sb: 1 },
 ];
 
 // Per-team tournament status. Update as groups finalize and knockout rounds complete.
@@ -186,8 +191,12 @@ export const teamStatus: Record<string, { wonGroup: boolean; reached: Stage }> =
   ESP: { wonGroup: true, reached: "r32" },
   EGY: { wonGroup: false, reached: "r32" },
   POR: { wonGroup: false, reached: "r32" },
-  ENG: { wonGroup: false, reached: "r32" },
   GHA: { wonGroup: false, reached: "r32" },
+  // June 27 — Groups G and L finished. Belgium won Group G on goal difference (level with Egypt
+  // on points); England won Group L; Croatia advanced as the Group L runner-up.
+  BEL: { wonGroup: true, reached: "r32" },
+  ENG: { wonGroup: true, reached: "r32" },
+  CRO: { wonGroup: false, reached: "r32" },
 };
 
 // Scheduled group fixtures (date = local kickoff day). The Upcoming view shows
