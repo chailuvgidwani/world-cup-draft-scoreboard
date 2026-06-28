@@ -127,36 +127,20 @@ function milestonePointsFor(reached: Stage): number {
   return milestonesFor(reached).reduce((sum, m) => sum + m.points, 0);
 }
 
-// Shared per-group context: how many games each group has logged, and each team's
-// current rank within its group (used to spot the eliminated last-place team).
-function groupContext(stats: Record<string, GroupStat>) {
+// How many group games each group has logged (a group is complete at 6).
+function groupGameCounts(): Record<string, number> {
   const gamesByGroup: Record<string, number> = {};
-  const groups: Record<string, string[]> = {};
-  for (const [code, t] of Object.entries(TEAMS)) (groups[t.group] ??= []).push(code);
   for (const m of groupMatches) {
     const g = TEAMS[m.a]?.group;
     if (g) gamesByGroup[g] = (gamesByGroup[g] ?? 0) + 1;
   }
-  const rankInGroup: Record<string, number> = {};
-  for (const codes of Object.values(groups)) {
-    [...codes]
-      .sort((a, b) => {
-        const A = stats[a];
-        const B = stats[b];
-        const pa = A.wins * 3 + A.draws;
-        const pb = B.wins * 3 + B.draws;
-        return pb - pa || B.gf - B.ga - (A.gf - A.ga) || B.gf - A.gf || a.localeCompare(b);
-      })
-      .forEach((code, i) => (rankInGroup[code] = i + 1));
-  }
-  return { gamesByGroup, rankInGroup };
+  return gamesByGroup;
 }
 
 function scoreTeam(
   code: string,
   stats: Record<string, GroupStat>,
   gamesByGroup: Record<string, number>,
-  rankInGroup: Record<string, number>,
 ): TeamScore {
   const team = TEAMS[code];
   const status = teamStatus[code] ?? { wonGroup: false, reached: "group" as Stage };
@@ -169,9 +153,10 @@ function scoreTeam(
   const milestonePoints = milestones.reduce((sum, m) => sum + m.points, 0);
 
   // Best-case group-stage points: win every remaining group game, plus the group
-  // title if the group is still open. Eliminated = group done and finished last.
+  // title if the group is still open. A team is out once its group is complete and
+  // it didn't reach the knockouts (every qualifier, incl. best-thirds, is marked r32).
   const groupComplete = (gamesByGroup[group] ?? 0) >= 6;
-  const eliminated = groupComplete && status.reached === "group" && rankInGroup[code] === 4;
+  const eliminated = groupComplete && status.reached === "group";
   const remainingGroupGames = Math.max(0, 3 - stat.played);
   const maxGroupWinnerBonus = status.wonGroup
     ? SCORING.groupWinnerBonus
@@ -215,11 +200,11 @@ const KO_SLOTS: number[] = [
 // shared ranks for ties, and each manager's teams sorted by points (desc).
 export function computeStandings(): ManagerScore[] {
   const stats = computeGroupStats();
-  const { gamesByGroup, rankInGroup } = groupContext(stats);
+  const gamesByGroup = groupGameCounts();
 
   const unranked = Object.entries(ROSTERS).map(([manager, codes]) => {
     const teams = codes
-      .map((code) => scoreTeam(code, stats, gamesByGroup, rankInGroup))
+      .map((code) => scoreTeam(code, stats, gamesByGroup))
       .sort((a, b) => b.total - a.total || a.name.localeCompare(b.name));
     const total = teams.reduce((sum, t) => sum + t.total, 0);
     // Ceiling: eliminated teams keep what they've banked; surviving teams win out
@@ -454,30 +439,10 @@ export type ScenarioTeam = {
 
 // Per-team state for the Scenarios tab: the fixed points each team has banked,
 // the confirmed stage it has reached (the floor a user can project up from), and
-// whether it has been eliminated (its group finished and it placed last).
+// whether it has been eliminated (its group finished without it reaching the R32).
 export function scenarioTeams(): ScenarioTeam[] {
   const stats = computeGroupStats();
-
-  // Games logged per group, and within-group ranking (to spot the eliminated 4th).
-  const gamesByGroup: Record<string, number> = {};
-  const groups: Record<string, string[]> = {};
-  for (const [code, t] of Object.entries(TEAMS)) (groups[t.group] ??= []).push(code);
-  for (const m of groupMatches) {
-    const g = TEAMS[m.a]?.group;
-    if (g) gamesByGroup[g] = (gamesByGroup[g] ?? 0) + 1;
-  }
-  const rankInGroup: Record<string, number> = {};
-  for (const codes of Object.values(groups)) {
-    [...codes]
-      .sort((a, b) => {
-        const A = stats[a];
-        const B = stats[b];
-        const pa = A.wins * 3 + A.draws;
-        const pb = B.wins * 3 + B.draws;
-        return pb - pa || B.gf - B.ga - (A.gf - A.ga) || B.gf - A.gf || a.localeCompare(b);
-      })
-      .forEach((code, i) => (rankInGroup[code] = i + 1));
-  }
+  const gamesByGroup = groupGameCounts();
 
   const ownerByCode: Record<string, string> = {};
   for (const [manager, codes] of Object.entries(ROSTERS))
@@ -496,8 +461,8 @@ export function scenarioTeams(): ScenarioTeam[] {
       groupWinPoints: (stats[code]?.wins ?? 0) * SCORING.groupWin,
       wonGroupBonus: st.wonGroup ? SCORING.groupWinnerBonus : 0,
       reached: st.reached,
-      // Locked out only when its group is complete and it finished bottom (4th).
-      eliminated: groupDone && st.reached === "group" && rankInGroup[code] === 4,
+      // Out once its group is complete and it didn't reach the knockouts.
+      eliminated: groupDone && st.reached === "group",
     };
   });
 }
