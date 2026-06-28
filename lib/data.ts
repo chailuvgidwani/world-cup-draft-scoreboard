@@ -273,3 +273,36 @@ export const upcomingMatches: { date: string; a: string; b: string }[] = [
   { date: "2026-06-27", a: "COL", b: "POR" },
   { date: "2026-06-27", a: "COD", b: "UZB" },
 ];
+
+// A knockout round (champion is reached by winning the final, so it isn't a round).
+export type KnockoutRound = "r32" | "r16" | "qf" | "sf" | "final";
+
+// Scheduled knockout fixtures (date = local kickoff day). Shows in Upcoming until
+// the result is logged below. The R32 bracket is set; add R16/QF/SF/Final pairings
+// here as each round's teams are known.
+export const knockoutFixtures: { round: KnockoutRound; date: string; a: string; b: string }[] = [
+  { round: "r32", date: "2026-06-28", a: "RSA", b: "CAN" },
+  { round: "r32", date: "2026-06-29", a: "GER", b: "PAR" },
+  { round: "r32", date: "2026-06-29", a: "NED", b: "MAR" },
+  { round: "r32", date: "2026-06-29", a: "BRA", b: "JPN" },
+  { round: "r32", date: "2026-06-30", a: "FRA", b: "SWE" },
+  { round: "r32", date: "2026-06-30", a: "CIV", b: "NOR" },
+  { round: "r32", date: "2026-06-30", a: "MEX", b: "ECU" },
+  { round: "r32", date: "2026-07-01", a: "ENG", b: "COD" },
+  { round: "r32", date: "2026-07-01", a: "USA", b: "BIH" },
+  { round: "r32", date: "2026-07-01", a: "BEL", b: "SEN" },
+  { round: "r32", date: "2026-07-02", a: "POR", b: "CRO" },
+  { round: "r32", date: "2026-07-02", a: "ESP", b: "AUT" },
+  { round: "r32", date: "2026-07-02", a: "SUI", b: "ALG" },
+  { round: "r32", date: "2026-07-03", a: "ARG", b: "CPV" },
+  { round: "r32", date: "2026-07-03", a: "COL", b: "GHA" },
+  { round: "r32", date: "2026-07-03", a: "AUS", b: "EGY" },
+];
+
+// Knockout results. Add one object per completed knockout game; the winner's
+// progression and the loser's elimination are derived automatically (no need to
+// touch teamStatus). Knockouts can't draw — record the result after extra time /
+// penalties (the team that goes through is the winner).
+export const knockoutMatches: { round: KnockoutRound; a: string; sa: number; b: string; sb: number }[] = [
+  // e.g. { round: "r32", a: "RSA", sa: 1, b: "CAN", sb: 2 },
+];

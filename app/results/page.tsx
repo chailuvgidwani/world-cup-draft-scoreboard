@@ -1,6 +1,7 @@
 import {
   matchesByGroup,
   statusAwards,
+  knockoutResultsByRound,
   tournamentSummary,
   ownerOf,
   STAGE_SHORT,
@@ -21,6 +22,7 @@ function ScoreRow({
   score,
   win,
   draw,
+  gain,
 }: {
   code: string;
   name: string;
@@ -28,6 +30,7 @@ function ScoreRow({
   score: number;
   win: boolean;
   draw: boolean;
+  gain: number;
 }) {
   const tone = win
     ? "text-emerald-300"
@@ -47,7 +50,7 @@ function ScoreRow({
             </span>
             {win && (
               <span className="shrink-0 rounded bg-emerald-400/15 px-1.5 py-0.5 text-[10px] font-semibold text-emerald-300">
-                +2
+                +{gain}
               </span>
             )}
           </div>
@@ -63,8 +66,13 @@ function ScoreRow({
   );
 }
 
-function MatchCard({ m }: { m: ResultRow }) {
+// Points the winner banks: +2 for a group win, or the milestone gained by
+// advancing in a knockout round (R32 win → reach R16 = +2, … final win = +8).
+const KO_GAIN: Record<string, number> = { r32: 2, r16: 3, qf: 4, sf: 5, final: 8 };
+
+function MatchCard({ m, round }: { m: ResultRow; round?: string }) {
   const draw = m.winner === null;
+  const gain = round ? (KO_GAIN[round] ?? 0) : 2;
   return (
     <li className="rounded-xl bg-slate-800/40 px-3 py-2">
       <ScoreRow
@@ -74,6 +82,7 @@ function MatchCard({ m }: { m: ResultRow }) {
         score={m.sa}
         win={m.winner === m.a}
         draw={draw}
+        gain={gain}
       />
       <div className="my-1 border-t border-white/5" />
       <ScoreRow
@@ -83,6 +92,7 @@ function MatchCard({ m }: { m: ResultRow }) {
         score={m.sb}
         win={m.winner === m.b}
         draw={draw}
+        gain={gain}
       />
     </li>
   );
@@ -91,6 +101,7 @@ function MatchCard({ m }: { m: ResultRow }) {
 export default function ResultsPage() {
   const groups = matchesByGroup();
   const awards = statusAwards();
+  const knockouts = knockoutResultsByRound();
   const summary = tournamentSummary();
 
   return (
@@ -111,6 +122,23 @@ export default function ResultsPage() {
         {!summary.groupStageComplete &&
           ` · ${summary.totalGroupGames - summary.matchesPlayed} to play`}
       </p>
+
+      {knockouts.length > 0 && (
+        <div className="mb-6 space-y-6">
+          {knockouts.map(({ round, label, matches }) => (
+            <section key={round}>
+              <h2 className="mb-2 px-1 text-sm font-semibold uppercase tracking-wide text-emerald-300/80">
+                {label}
+              </h2>
+              <ul className="space-y-2">
+                {matches.map((m, i) => (
+                  <MatchCard key={`${m.a}-${m.b}-${i}`} m={m} round={round} />
+                ))}
+              </ul>
+            </section>
+          ))}
+        </div>
+      )}
 
       <div className="space-y-6">
         {groups.map(({ group, matches }) => (

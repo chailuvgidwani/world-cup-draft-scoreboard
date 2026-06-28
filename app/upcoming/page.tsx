@@ -42,7 +42,7 @@ function FixtureCard({ f }: { f: Fixture }) {
         </div>
       </div>
       <div className="mt-2 text-center text-[10px] uppercase tracking-wide text-slate-600">
-        Group {f.group}
+        {f.stageLabel}
       </div>
     </li>
   );

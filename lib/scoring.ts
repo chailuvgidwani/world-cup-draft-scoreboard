@@ -7,8 +7,44 @@ import {
   groupMatches,
   teamStatus,
   upcomingMatches,
+  knockoutFixtures,
+  knockoutMatches,
   type Stage,
+  type KnockoutRound,
 } from "./data";
+
+// The stage a team reaches by WINNING a knockout match in the given round.
+const ROUND_ADVANCES_TO: Record<KnockoutRound, Stage> = {
+  r32: "r16",
+  r16: "qf",
+  qf: "sf",
+  sf: "final",
+  final: "champion",
+};
+
+// Fold the knockout results into each team's effective furthest stage and the set
+// of teams knocked out. Group qualification sets the starting `reached` (group or
+// r32); winning a knockout match bumps it; losing one eliminates the team.
+function knockoutState(): {
+  reached: Record<string, Stage>;
+  knockedOut: Set<string>;
+} {
+  const reached: Record<string, Stage> = {};
+  for (const [code, st] of Object.entries(teamStatus)) reached[code] = st.reached;
+  const knockedOut = new Set<string>();
+  for (const m of knockoutMatches) {
+    const winner = m.sa > m.sb ? m.a : m.sb > m.sa ? m.b : null;
+    const loser = winner === m.a ? m.b : winner === m.b ? m.a : null;
+    if (winner) {
+      const next = ROUND_ADVANCES_TO[m.round];
+      if (STAGE_ORDER.indexOf(next) > STAGE_ORDER.indexOf(reached[winner] ?? "group")) {
+        reached[winner] = next;
+      }
+    }
+    if (loser) knockedOut.add(loser);
+  }
+  return { reached, knockedOut };
+}
 
 // Human-readable labels for each stage.
 export const STAGE_LABELS: Record<Stage, string> = {
@@ -141,22 +177,26 @@ function scoreTeam(
   code: string,
   stats: Record<string, GroupStat>,
   gamesByGroup: Record<string, number>,
+  reachedMap: Record<string, Stage>,
+  knockedOut: Set<string>,
 ): TeamScore {
   const team = TEAMS[code];
   const status = teamStatus[code] ?? { wonGroup: false, reached: "group" as Stage };
   const stat = stats[code] ?? { played: 0, wins: 0, draws: 0, losses: 0, gf: 0, ga: 0 };
   const group = team?.group ?? "?";
+  const reached = reachedMap[code] ?? status.reached; // includes knockout progression
 
   const groupWinPoints = stat.wins * SCORING.groupWin;
   const groupWinnerBonus = status.wonGroup ? SCORING.groupWinnerBonus : 0;
-  const milestones = milestonesFor(status.reached);
+  const milestones = milestonesFor(reached);
   const milestonePoints = milestones.reduce((sum, m) => sum + m.points, 0);
 
   // Best-case group-stage points: win every remaining group game, plus the group
-  // title if the group is still open. A team is out once its group is complete and
-  // it didn't reach the knockouts (every qualifier, incl. best-thirds, is marked r32).
+  // title if the group is still open. A team is out if it lost a knockout match, or
+  // its group finished and it never reached the knockouts.
   const groupComplete = (gamesByGroup[group] ?? 0) >= 6;
-  const eliminated = groupComplete && status.reached === "group";
+  const eliminated =
+    knockedOut.has(code) || (groupComplete && status.reached === "group");
   const remainingGroupGames = Math.max(0, 3 - stat.played);
   const maxGroupWinnerBonus = status.wonGroup
     ? SCORING.groupWinnerBonus
@@ -174,7 +214,7 @@ function scoreTeam(
     groupWinPoints,
     wonGroup: status.wonGroup,
     groupWinnerBonus,
-    reached: status.reached,
+    reached,
     milestones,
     milestonePoints,
     total: groupWinPoints + groupWinnerBonus + milestonePoints,
@@ -201,10 +241,11 @@ const KO_SLOTS: number[] = [
 export function computeStandings(): ManagerScore[] {
   const stats = computeGroupStats();
   const gamesByGroup = groupGameCounts();
+  const { reached, knockedOut } = knockoutState();
 
   const unranked = Object.entries(ROSTERS).map(([manager, codes]) => {
     const teams = codes
-      .map((code) => scoreTeam(code, stats, gamesByGroup))
+      .map((code) => scoreTeam(code, stats, gamesByGroup, reached, knockedOut))
       .sort((a, b) => b.total - a.total || a.name.localeCompare(b.name));
     const total = teams.reduce((sum, t) => sum + t.total, 0);
     // Ceiling: eliminated teams keep what they've banked; surviving teams win out
@@ -259,8 +300,8 @@ export function tournamentSummary(): TournamentSummary {
   let phase: Stage = "group";
   if (groupStageComplete) {
     let furthestIdx = 0;
-    for (const status of Object.values(teamStatus)) {
-      const idx = STAGE_ORDER.indexOf(status.reached);
+    for (const r of Object.values(knockoutState().reached)) {
+      const idx = STAGE_ORDER.indexOf(r);
       if (idx > furthestIdx) furthestIdx = idx;
     }
     phase = STAGE_ORDER[furthestIdx];
@@ -372,7 +413,7 @@ export type Fixture = {
   b: string;
   bName: string;
   bOwner: string | null;
-  group: string;
+  stageLabel: string; // "Group A" or a knockout round, e.g. "Round of 32"
 };
 
 export type FixtureDay = {
@@ -399,23 +440,32 @@ function formatDay(iso: string): string {
   });
 }
 
-// Scheduled fixtures that haven't been played yet (no matching result in
-// groupMatches), grouped by day in chronological order.
+// Scheduled fixtures still to be played (group + knockout), grouped by day in
+// chronological order. A fixture drops off once its result is logged.
 export function upcomingByDay(): FixtureDay[] {
-  const played = new Set(groupMatches.map((m) => pairKey(m.a, m.b)));
+  const playedGroup = new Set(groupMatches.map((m) => pairKey(m.a, m.b)));
+  const playedKO = new Set(knockoutMatches.map((m) => pairKey(m.a, m.b)));
   const byDate: Record<string, Fixture[]> = {};
 
-  for (const f of upcomingMatches) {
-    if (played.has(pairKey(f.a, f.b))) continue;
-    (byDate[f.date] ??= []).push({
-      a: f.a,
-      aName: TEAMS[f.a]?.name ?? f.a,
-      aOwner: ownerOf(f.a),
-      b: f.b,
-      bName: TEAMS[f.b]?.name ?? f.b,
-      bOwner: ownerOf(f.b),
-      group: TEAMS[f.a]?.group ?? "?",
+  const add = (date: string, a: string, b: string, stageLabel: string) => {
+    (byDate[date] ??= []).push({
+      a,
+      aName: TEAMS[a]?.name ?? a,
+      aOwner: ownerOf(a),
+      b,
+      bName: TEAMS[b]?.name ?? b,
+      bOwner: ownerOf(b),
+      stageLabel,
     });
+  };
+
+  for (const f of upcomingMatches) {
+    if (playedGroup.has(pairKey(f.a, f.b))) continue;
+    add(f.date, f.a, f.b, `Group ${TEAMS[f.a]?.group ?? "?"}`);
+  }
+  for (const f of knockoutFixtures) {
+    if (playedKO.has(pairKey(f.a, f.b))) continue;
+    add(f.date, f.a, f.b, STAGE_LABELS[f.round]);
   }
 
   return Object.keys(byDate)
@@ -443,6 +493,7 @@ export type ScenarioTeam = {
 export function scenarioTeams(): ScenarioTeam[] {
   const stats = computeGroupStats();
   const gamesByGroup = groupGameCounts();
+  const { reached, knockedOut } = knockoutState();
 
   const ownerByCode: Record<string, string> = {};
   for (const [manager, codes] of Object.entries(ROSTERS))
@@ -460,9 +511,39 @@ export function scenarioTeams(): ScenarioTeam[] {
       ownerLabel: MANAGER_NAMES[manager] ?? manager,
       groupWinPoints: (stats[code]?.wins ?? 0) * SCORING.groupWin,
       wonGroupBonus: st.wonGroup ? SCORING.groupWinnerBonus : 0,
-      reached: st.reached,
-      // Out once its group is complete and it didn't reach the knockouts.
-      eliminated: groupDone && st.reached === "group",
+      reached: reached[code] ?? st.reached, // includes knockout progression
+      // Out if it lost a knockout match, or its group finished without it advancing.
+      eliminated: knockedOut.has(code) || (groupDone && st.reached === "group"),
     };
   });
+}
+
+// ---- Knockout results (for the Results tab) -----------------------------
+
+export type KnockoutResultRow = ResultRow & { round: KnockoutRound };
+
+// Logged knockout games grouped by round (deepest-played first hidden; shown in
+// bracket order), each with winner and owners.
+export function knockoutResultsByRound(): {
+  round: KnockoutRound;
+  label: string;
+  matches: KnockoutResultRow[];
+}[] {
+  const byRound: Record<string, KnockoutResultRow[]> = {};
+  for (const m of knockoutMatches) {
+    (byRound[m.round] ??= []).push({
+      round: m.round,
+      a: m.a,
+      aName: TEAMS[m.a]?.name ?? m.a,
+      b: m.b,
+      bName: TEAMS[m.b]?.name ?? m.b,
+      sa: m.sa,
+      sb: m.sb,
+      winner: m.sa > m.sb ? m.a : m.sb > m.sa ? m.b : null,
+    });
+  }
+  const order: KnockoutRound[] = ["r32", "r16", "qf", "sf", "final"];
+  return order
+    .filter((r) => byRound[r])
+    .map((r) => ({ round: r, label: STAGE_LABELS[r], matches: byRound[r] }));
 }
