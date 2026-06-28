@@ -134,6 +134,9 @@ export const groupMatches: { a: string; sa: number; b: string; sb: number }[] = 
   { a: "EGY", sa: 1, b: "IRN", sb: 1 },
   { a: "ENG", sa: 2, b: "PAN", sb: 0 },
   { a: "CRO", sa: 2, b: "GHA", sb: 1 },
+  // June 27 — Group K finishes: Colombia top the group; DR Congo win to grab a best-third spot.
+  { a: "COD", sa: 3, b: "UZB", sb: 1 },
+  { a: "POR", sa: 0, b: "COL", sb: 0 },
 ];
 
 // Per-team tournament status. Update as groups finalize and knockout rounds complete.
@@ -161,9 +164,9 @@ export const teamStatus: Record<string, { wonGroup: boolean; reached: Stage }> =
   // June 22 — Norway also clinched a knockout berth in Group I (level with France on points;
   // 1st is decided when they meet on matchday 3), so R32 advancement (+3) only.
   NOR: { wonGroup: false, reached: "r32" },
-  // June 23 — Colombia clinched a knockout berth in Group K (Wikipedia "(A)"); 1st is still
-  // open (decided vs Portugal on matchday 3), so R32 advancement (+3) only.
-  COL: { wonGroup: false, reached: "r32" },
+  // June 27 — Colombia won Group K (7 pts, drew Portugal on matchday 3 to seal 1st): group
+  // bonus (+1) on top of R32 (+3).
+  COL: { wonGroup: true, reached: "r32" },
   // June 25 — Groups A, B and C finished. New group winners (bonus + R32): Switzerland (B) and
   // Brazil (C); Mexico (A) was already logged. Other qualifiers reach the R32: South Africa
   // (A, 2nd), Canada (B, 2nd), Bosnia (B, best 3rd), Morocco (C, 2nd).
@@ -197,6 +200,9 @@ export const teamStatus: Record<string, { wonGroup: boolean; reached: Stage }> =
   BEL: { wonGroup: true, reached: "r32" },
   ENG: { wonGroup: true, reached: "r32" },
   CRO: { wonGroup: false, reached: "r32" },
+  // June 27 — DR Congo finished 3rd in Group K on 4 pts with the best goal difference of any
+  // third-placed team, securing a best-third berth in the R32.
+  COD: { wonGroup: false, reached: "r32" },
 };
 
 // Scheduled group fixtures (date = local kickoff day). The Upcoming view shows
