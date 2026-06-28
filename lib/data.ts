@@ -137,6 +137,9 @@ export const groupMatches: { a: string; sa: number; b: string; sb: number }[] = 
   // June 27 — Group K finishes: Colombia top the group; DR Congo win to grab a best-third spot.
   { a: "COD", sa: 3, b: "UZB", sb: 1 },
   { a: "POR", sa: 0, b: "COL", sb: 0 },
+  // June 27 — Group J finishes the group stage: Argentina win out; Austria edge Algeria for 2nd.
+  { a: "ARG", sa: 3, b: "JOR", sb: 1 },
+  { a: "ALG", sa: 3, b: "AUT", sb: 3 },
 ];
 
 // Per-team tournament status. Update as groups finalize and knockout rounds complete.
@@ -203,6 +206,12 @@ export const teamStatus: Record<string, { wonGroup: boolean; reached: Stage }> =
   // June 27 — DR Congo finished 3rd in Group K on 4 pts with the best goal difference of any
   // third-placed team, securing a best-third berth in the R32.
   COD: { wonGroup: false, reached: "r32" },
+  // June 27 — Group J wrapped up the group stage and the final R32 bracket is set. Austria
+  // advanced as runner-up; Algeria (J) and Senegal (I) took the last two best-third spots.
+  // The eliminated thirds were South Korea (A), Scotland (C), Iran (G) and Uruguay (H).
+  AUT: { wonGroup: false, reached: "r32" },
+  ALG: { wonGroup: false, reached: "r32" },
+  SEN: { wonGroup: false, reached: "r32" },
 };
 
 // Scheduled group fixtures (date = local kickoff day). The Upcoming view shows
