@@ -280,23 +280,43 @@ export type KnockoutRound = "r32" | "r16" | "qf" | "sf" | "final";
 // Scheduled knockout fixtures (date = local kickoff day). Shows in Upcoming until
 // the result is logged below. The R32 bracket is set; add R16/QF/SF/Final pairings
 // here as each round's teams are known.
-export const knockoutFixtures: { round: KnockoutRound; date: string; a: string; b: string }[] = [
-  { round: "r32", date: "2026-06-28", a: "RSA", b: "CAN" },
-  { round: "r32", date: "2026-06-29", a: "GER", b: "PAR" },
-  { round: "r32", date: "2026-06-29", a: "NED", b: "MAR" },
-  { round: "r32", date: "2026-06-29", a: "BRA", b: "JPN" },
-  { round: "r32", date: "2026-06-30", a: "FRA", b: "SWE" },
-  { round: "r32", date: "2026-06-30", a: "CIV", b: "NOR" },
-  { round: "r32", date: "2026-06-30", a: "MEX", b: "ECU" },
-  { round: "r32", date: "2026-07-01", a: "ENG", b: "COD" },
-  { round: "r32", date: "2026-07-01", a: "USA", b: "BIH" },
-  { round: "r32", date: "2026-07-01", a: "BEL", b: "SEN" },
-  { round: "r32", date: "2026-07-02", a: "POR", b: "CRO" },
-  { round: "r32", date: "2026-07-02", a: "ESP", b: "AUT" },
-  { round: "r32", date: "2026-07-02", a: "SUI", b: "ALG" },
-  { round: "r32", date: "2026-07-03", a: "ARG", b: "CPV" },
-  { round: "r32", date: "2026-07-03", a: "COL", b: "GHA" },
-  { round: "r32", date: "2026-07-03", a: "AUS", b: "EGY" },
+export const knockoutFixtures: { id: string; round: KnockoutRound; date: string; a: string; b: string }[] = [
+  { id: "73", round: "r32", date: "2026-06-28", a: "RSA", b: "CAN" },
+  { id: "74", round: "r32", date: "2026-06-29", a: "GER", b: "PAR" },
+  { id: "75", round: "r32", date: "2026-06-29", a: "NED", b: "MAR" },
+  { id: "76", round: "r32", date: "2026-06-29", a: "BRA", b: "JPN" },
+  { id: "77", round: "r32", date: "2026-06-30", a: "FRA", b: "SWE" },
+  { id: "78", round: "r32", date: "2026-06-30", a: "CIV", b: "NOR" },
+  { id: "79", round: "r32", date: "2026-06-30", a: "MEX", b: "ECU" },
+  { id: "80", round: "r32", date: "2026-07-01", a: "ENG", b: "COD" },
+  { id: "81", round: "r32", date: "2026-07-01", a: "USA", b: "BIH" },
+  { id: "82", round: "r32", date: "2026-07-01", a: "BEL", b: "SEN" },
+  { id: "83", round: "r32", date: "2026-07-02", a: "POR", b: "CRO" },
+  { id: "84", round: "r32", date: "2026-07-02", a: "ESP", b: "AUT" },
+  { id: "85", round: "r32", date: "2026-07-02", a: "SUI", b: "ALG" },
+  { id: "86", round: "r32", date: "2026-07-03", a: "ARG", b: "CPV" },
+  { id: "87", round: "r32", date: "2026-07-03", a: "COL", b: "GHA" },
+  { id: "88", round: "r32", date: "2026-07-03", a: "AUS", b: "EGY" },
+];
+
+// Bracket wiring for the Round of 16 onward: each match is contested by the winners
+// of two earlier matches (referenced by id). R32 teams come from knockoutFixtures.
+export const BRACKET_TREE: { id: string; round: KnockoutRound; from: [string, string] }[] = [
+  { id: "90", round: "r16", from: ["73", "75"] },
+  { id: "89", round: "r16", from: ["74", "77"] },
+  { id: "91", round: "r16", from: ["76", "78"] },
+  { id: "92", round: "r16", from: ["79", "80"] },
+  { id: "93", round: "r16", from: ["83", "84"] },
+  { id: "94", round: "r16", from: ["81", "82"] },
+  { id: "95", round: "r16", from: ["86", "88"] },
+  { id: "96", round: "r16", from: ["85", "87"] },
+  { id: "97", round: "qf", from: ["89", "90"] },
+  { id: "98", round: "qf", from: ["93", "94"] },
+  { id: "99", round: "qf", from: ["91", "92"] },
+  { id: "100", round: "qf", from: ["95", "96"] },
+  { id: "101", round: "sf", from: ["97", "98"] },
+  { id: "102", round: "sf", from: ["99", "100"] },
+  { id: "104", round: "final", from: ["101", "102"] },
 ];
 
 // Knockout results. Add one object per completed knockout game; the winner's

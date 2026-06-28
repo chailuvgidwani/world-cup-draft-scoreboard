@@ -4,14 +4,14 @@ const TABS = [
   { href: "/", key: "standings", label: "Standings" },
   { href: "/upcoming", key: "upcoming", label: "Upcoming" },
   { href: "/results", key: "results", label: "Results" },
-  { href: "/scenarios", key: "scenarios", label: "Scenarios" },
+  { href: "/bracket", key: "bracket", label: "Bracket" },
 ] as const;
 
 // Pill tab-switcher shared across pages.
 export function Nav({
   active,
 }: {
-  active: "standings" | "upcoming" | "results" | "scenarios";
+  active: "standings" | "upcoming" | "results" | "bracket";
 }) {
   return (
     <nav className="mx-auto mb-6 flex max-w-md gap-1 rounded-full border border-slate-800 bg-slate-900/50 p-1">

@@ -9,6 +9,7 @@ import {
   upcomingMatches,
   knockoutFixtures,
   knockoutMatches,
+  BRACKET_TREE,
   type Stage,
   type KnockoutRound,
 } from "./data";
@@ -473,49 +474,86 @@ export function upcomingByDay(): FixtureDay[] {
     .map((date) => ({ date, label: formatDay(date), fixtures: byDate[date] }));
 }
 
-// ---- Scenario simulator -------------------------------------------------
+// ---- Clickable bracket --------------------------------------------------
 
-export type ScenarioTeam = {
+export type BracketTeam = {
   code: string;
   name: string;
-  group: string;
   manager: string; // roster (manager) name
   ownerLabel: string; // display name (real name where set)
-  groupWinPoints: number; // fixed: group-stage win points already banked
-  wonGroupBonus: number; // fixed: 0 or +1
-  reached: Stage; // confirmed furthest stage so far (the floor for projections)
-  eliminated: boolean; // true once the team is mathematically out (locked)
+  fixedPoints: number; // group-stage win points + group-winner bonus (bracket-independent)
+  inBracket: boolean; // is one of the 32 R32 qualifiers
 };
 
-// Per-team state for the Scenarios tab: the fixed points each team has banked,
-// the confirmed stage it has reached (the floor a user can project up from), and
-// whether it has been eliminated (its group finished without it reaching the R32).
-export function scenarioTeams(): ScenarioTeam[] {
+export type BracketMatch = {
+  id: string;
+  round: KnockoutRound;
+  // R32 matches carry their two teams; later matches reference the feeder match ids.
+  aTeam: string | null;
+  bTeam: string | null;
+  fromA: string | null;
+  fromB: string | null;
+};
+
+export type BracketData = {
+  managers: string[];
+  teams: BracketTeam[];
+  matches: BracketMatch[]; // ordered so every feeder appears before the match it feeds
+  results: { a: string; b: string; winner: string }[]; // locked actual knockout results
+};
+
+// Everything the clickable bracket needs: the match tree, each team's fixed
+// (group-stage) points and owner, and any real knockout results to lock in.
+export function bracketData(): BracketData {
   const stats = computeGroupStats();
-  const gamesByGroup = groupGameCounts();
-  const { reached, knockedOut } = knockoutState();
 
   const ownerByCode: Record<string, string> = {};
   for (const [manager, codes] of Object.entries(ROSTERS))
     for (const code of codes) ownerByCode[code] = manager;
 
-  return Object.entries(TEAMS).map(([code, t]) => {
+  const r32 = new Set<string>();
+  for (const f of knockoutFixtures)
+    if (f.round === "r32") {
+      r32.add(f.a);
+      r32.add(f.b);
+    }
+
+  const teams: BracketTeam[] = Object.entries(TEAMS).map(([code, t]) => {
     const st = teamStatus[code] ?? { wonGroup: false, reached: "group" as Stage };
     const manager = ownerByCode[code] ?? "—";
-    const groupDone = (gamesByGroup[t.group] ?? 0) >= 6;
+    const groupWinPoints = (stats[code]?.wins ?? 0) * SCORING.groupWin;
+    const bonus = st.wonGroup ? SCORING.groupWinnerBonus : 0;
     return {
       code,
       name: t.name,
-      group: t.group,
       manager,
       ownerLabel: MANAGER_NAMES[manager] ?? manager,
-      groupWinPoints: (stats[code]?.wins ?? 0) * SCORING.groupWin,
-      wonGroupBonus: st.wonGroup ? SCORING.groupWinnerBonus : 0,
-      reached: reached[code] ?? st.reached, // includes knockout progression
-      // Out if it lost a knockout match, or its group finished without it advancing.
-      eliminated: knockedOut.has(code) || (groupDone && st.reached === "group"),
+      fixedPoints: groupWinPoints + bonus,
+      inBracket: r32.has(code),
     };
   });
+
+  const matches: BracketMatch[] = [];
+  for (const f of knockoutFixtures)
+    if (f.round === "r32")
+      matches.push({ id: f.id, round: "r32", aTeam: f.a, bTeam: f.b, fromA: null, fromB: null });
+  for (const m of BRACKET_TREE)
+    matches.push({
+      id: m.id,
+      round: m.round,
+      aTeam: null,
+      bTeam: null,
+      fromA: m.from[0],
+      fromB: m.from[1],
+    });
+
+  const results = knockoutMatches.map((m) => ({
+    a: m.a,
+    b: m.b,
+    winner: m.sa > m.sb ? m.a : m.sb > m.sa ? m.b : m.a,
+  }));
+
+  return { managers: Object.keys(ROSTERS), teams, matches, results };
 }
 
 // ---- Knockout results (for the Results tab) -----------------------------
