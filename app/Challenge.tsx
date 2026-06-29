@@ -1,7 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { toPng } from "html-to-image";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { flagFor } from "@/lib/flags";
 import { resolveBracket, normalizePicks, pairKey, type Picks } from "@/lib/bracketLogic";
 import type { BracketData, BracketMatch } from "@/lib/scoring";
@@ -112,19 +111,158 @@ export function Challenge({ data }: { data: BracketData }) {
   const champion = state.winner["104"];
   const champInfo = champion ? teamInfo[champion] : undefined;
 
-  const captureRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState(false);
-  async function exportPng() {
-    if (!captureRef.current) return;
+
+  // Draw a real left-to-right tournament bracket (boxes + connector lines) to a
+  // canvas and return a PNG data URL.
+  function renderBracketImage(): string {
+    const { matches } = data;
+    const byId = new Map(matches.map((m) => [m.id, m]));
+    const { winner, part } = state;
+
+    // R32 order, top to bottom: in-order traversal from the final.
+    const order: string[] = [];
+    const dfs = (id: string) => {
+      const m = byId.get(id);
+      if (!m) return;
+      if (m.round === "r32") return void order.push(id);
+      if (m.fromA) dfs(m.fromA);
+      if (m.fromB) dfs(m.fromB);
+    };
+    dfs("104");
+
+    const rounds = ["r32", "r16", "qf", "sf", "final"];
+    const labels: Record<string, string> = {
+      r32: "ROUND OF 32",
+      r16: "ROUND OF 16",
+      qf: "QUARTERS",
+      sf: "SEMIS",
+      final: "FINAL",
+    };
+    const boxW = 168;
+    const slotH = 22;
+    const boxH = slotH * 2;
+    const gapY = 12;
+    const colGap = 28;
+    const colW = boxW + colGap;
+    const padX = 22;
+    const padTop = 84;
+    const padBottom = 26;
+    const colX = (r: string) => padX + rounds.indexOf(r) * colW;
+
+    const yc: Record<string, number> = {};
+    order.forEach((id, i) => {
+      yc[id] = padTop + i * (boxH + gapY) + boxH / 2;
+    });
+    for (const r of ["r16", "qf", "sf", "final"]) {
+      for (const m of matches.filter((x) => x.round === r)) {
+        yc[m.id] = (yc[m.fromA!] + yc[m.fromB!]) / 2;
+      }
+    }
+
+    const totalH = padTop + order.length * (boxH + gapY) - gapY + padBottom;
+    const champX = colX("final") + colW;
+    const totalW = champX + boxW + padX;
+
+    const dpr = 2;
+    const canvas = document.createElement("canvas");
+    canvas.width = totalW * dpr;
+    canvas.height = totalH * dpr;
+    const ctx = canvas.getContext("2d")!;
+    ctx.scale(dpr, dpr);
+    ctx.textBaseline = "middle";
+
+    ctx.fillStyle = "#020617";
+    ctx.fillRect(0, 0, totalW, totalH);
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 24px ui-sans-serif, system-ui, -apple-system, sans-serif";
+    ctx.fillText(`${player}'s Bracket`, padX, 30);
+    ctx.fillStyle = champInfo ? "#fbbf24" : "#64748b";
+    ctx.font = "15px ui-sans-serif, system-ui, sans-serif";
+    ctx.fillText(
+      champInfo ? `🏆 Champion: ${champInfo.name}` : "2026 World Cup Draft Challenge",
+      padX,
+      57,
+    );
+
+    ctx.fillStyle = "#64748b";
+    ctx.font = "bold 11px ui-sans-serif, system-ui, sans-serif";
+    for (const r of rounds) ctx.fillText(labels[r], colX(r), padTop - 18);
+    ctx.fillText("CHAMPION", champX, padTop - 18);
+
+    // connector lines (behind boxes)
+    ctx.strokeStyle = "#26344a";
+    ctx.lineWidth = 1.5;
+    for (const r of ["r16", "qf", "sf", "final"]) {
+      for (const m of matches.filter((x) => x.round === r)) {
+        const px = colX(r);
+        const py = yc[m.id];
+        for (const child of [m.fromA!, m.fromB!]) {
+          const cx = colX(byId.get(child)!.round) + boxW;
+          const cyy = yc[child];
+          const midX = px - colGap / 2;
+          ctx.beginPath();
+          ctx.moveTo(cx, cyy);
+          ctx.lineTo(midX, cyy);
+          ctx.lineTo(midX, py);
+          ctx.lineTo(px, py);
+          ctx.stroke();
+        }
+      }
+    }
+    ctx.beginPath();
+    ctx.moveTo(colX("final") + boxW, yc["104"]);
+    ctx.lineTo(champX, yc["104"]);
+    ctx.stroke();
+
+    const drawSlot = (x: number, y: number, team: string | null, win: boolean) => {
+      ctx.fillStyle = win ? "rgba(16,185,129,0.18)" : "#0b1220";
+      ctx.fillRect(x, y, boxW, slotH);
+      ctx.strokeStyle = "#1e293b";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x, y, boxW, slotH);
+      const t = team ? teamInfo[team] : null;
+      ctx.fillStyle = win ? "#6ee7b7" : team ? "#e2e8f0" : "#475569";
+      ctx.font = `${win ? "bold " : ""}12.5px ui-sans-serif, system-ui, sans-serif`;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(x + 7, y, boxW - 14, slotH);
+      ctx.clip();
+      ctx.fillText(t ? `${flagFor(team!)}  ${t.name}` : "—", x + 8, y + slotH / 2 + 1);
+      ctx.restore();
+    };
+    for (const m of matches) {
+      const x = colX(m.round);
+      const y = yc[m.id] - boxH / 2;
+      const [a, b] = part[m.id];
+      drawSlot(x, y, a, !!a && winner[m.id] === a);
+      drawSlot(x, y + slotH, b, !!b && winner[m.id] === b);
+    }
+    if (champion && champInfo) {
+      const y = yc["104"] - slotH / 2;
+      ctx.fillStyle = "rgba(251,191,36,0.18)";
+      ctx.fillRect(champX, y, boxW, slotH);
+      ctx.strokeStyle = "#f59e0b";
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(champX, y, boxW, slotH);
+      ctx.fillStyle = "#fde68a";
+      ctx.font = "bold 12.5px ui-sans-serif, system-ui, sans-serif";
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(champX + 7, y, boxW - 14, slotH);
+      ctx.clip();
+      ctx.fillText(`🏆 ${champInfo.name}`, champX + 8, y + slotH / 2 + 1);
+      ctx.restore();
+    }
+    return canvas.toDataURL("image/png");
+  }
+
+  function exportPng() {
     setExporting(true);
     try {
-      const url = await toPng(captureRef.current, {
-        backgroundColor: "#020617",
-        pixelRatio: 2,
-        cacheBust: true,
-      });
       const a = document.createElement("a");
-      a.href = url;
+      a.href = renderBracketImage();
       a.download = `${player ?? "my"}-bracket.png`;
       a.click();
     } catch {
@@ -285,34 +423,27 @@ export function Challenge({ data }: { data: BracketData }) {
           </div>
           {error && <p className="mb-3 px-1 text-xs text-rose-400">{error}</p>}
 
-          <div ref={captureRef} className="bg-slate-950 p-1">
-            <div className="px-1 pb-3 pt-1 text-center">
-              <div className="text-sm font-bold text-white">{player}&apos;s Bracket</div>
-              <div className="text-xs text-amber-300">
-                {champInfo ? `🏆 ${champInfo.name}` : "World Cup Draft Challenge"}
-              </div>
-            </div>
-            <div className="space-y-6">
-              {ROUNDS.map(({ round, label }) => (
-                <section key={round}>
-                  <h3 className="mb-2 px-1 text-sm font-semibold uppercase tracking-wide text-slate-400">
-                    {label}
-                  </h3>
-                  <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                    {data.matches
-                      .filter((m) => m.round === round)
-                      .map((m) => (
-                        <MatchCard key={m.id} m={m} />
-                      ))}
-                  </ul>
-                </section>
-              ))}
-            </div>
+          <div className="space-y-6">
+            {ROUNDS.map(({ round, label }) => (
+              <section key={round}>
+                <h3 className="mb-2 px-1 text-sm font-semibold uppercase tracking-wide text-slate-400">
+                  {label}
+                </h3>
+                <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  {data.matches
+                    .filter((m) => m.round === round)
+                    .map((m) => (
+                      <MatchCard key={m.id} m={m} />
+                    ))}
+                </ul>
+              </section>
+            ))}
           </div>
 
           <p className="mt-6 text-center text-xs leading-relaxed text-slate-600">
             Tap a team to advance it. Submit to lock in your entry (you can resubmit
-            to change it until games are played). Export a PNG to share in the chat.
+            to change it until games are played). Export PNG saves a bracket image
+            to share in the chat.
           </p>
         </div>
       )}
