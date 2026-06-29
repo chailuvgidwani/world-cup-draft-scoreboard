@@ -175,15 +175,17 @@ export function Challenge({ data }: { data: BracketData }) {
     ctx.fillStyle = "#020617";
     ctx.fillRect(0, 0, totalW, totalH);
 
+    const titleText = `${player}'s Bracket`;
     ctx.fillStyle = "#ffffff";
     ctx.font = "bold 24px ui-sans-serif, system-ui, -apple-system, sans-serif";
-    ctx.fillText(`${player}'s Bracket`, padX, 30);
+    ctx.fillText(titleText, padX, 34);
+    const titleW = ctx.measureText(titleText).width;
     ctx.fillStyle = champInfo ? "#fbbf24" : "#64748b";
     ctx.font = "15px ui-sans-serif, system-ui, sans-serif";
     ctx.fillText(
       champInfo ? `🏆 Champion: ${champInfo.name}` : "2026 World Cup Draft Challenge",
-      padX,
-      57,
+      padX + titleW + 16,
+      35,
     );
 
     ctx.fillStyle = "#64748b";
