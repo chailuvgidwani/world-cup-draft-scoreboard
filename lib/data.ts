@@ -326,4 +326,6 @@ export const BRACKET_TREE: { id: string; round: KnockoutRound; from: [string, st
 export const knockoutMatches: { round: KnockoutRound; a: string; sa: number; b: string; sb: number }[] = [
   // June 28 — Round of 32. Canada knock out South Africa.
   { round: "r32", a: "CAN", sa: 1, b: "RSA", sb: 0 },
+  // June 29 — Round of 32. Brazil edge Japan.
+  { round: "r32", a: "BRA", sa: 2, b: "JPN", sb: 1 },
 ];
