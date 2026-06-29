@@ -324,5 +324,6 @@ export const BRACKET_TREE: { id: string; round: KnockoutRound; from: [string, st
 // touch teamStatus). Knockouts can't draw — record the result after extra time /
 // penalties (the team that goes through is the winner).
 export const knockoutMatches: { round: KnockoutRound; a: string; sa: number; b: string; sb: number }[] = [
-  // e.g. { round: "r32", a: "RSA", sa: 1, b: "CAN", sb: 2 },
+  // June 28 — Round of 32. Canada knock out South Africa.
+  { round: "r32", a: "CAN", sa: 1, b: "RSA", sb: 0 },
 ];
