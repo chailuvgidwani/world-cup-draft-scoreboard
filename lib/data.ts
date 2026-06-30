@@ -341,4 +341,6 @@ export const knockoutMatches: {
   { round: "r32", a: "GER", sa: 1, b: "PAR", sb: 1, pa: 3, pb: 4 },
   // June 29 — Round of 32. Morocco knock out the Netherlands 3-2 on penalties (1-1 after ET).
   { round: "r32", a: "NED", sa: 1, b: "MAR", sb: 1, pa: 2, pb: 3 },
+  // June 30 — Round of 32. Norway beat Ivory Coast.
+  { round: "r32", a: "NOR", sa: 2, b: "CIV", sb: 1 },
 ];
