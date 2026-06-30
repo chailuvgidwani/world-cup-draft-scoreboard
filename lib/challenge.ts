@@ -95,6 +95,14 @@ export type BoardRow = {
   updatedAt: string | null;
 };
 
+// Manual commissioner adjustments to challenge scores (player display name -> delta).
+// Chailuv: -1 — a R32 result was pushed after he'd locked in his pick but before the
+// others submitted, so his bracket banked a point the late submitters' (now-locked)
+// brackets couldn't register. Removed to keep it fair. (2026-06-30)
+const SCORE_ADJUSTMENTS: Record<string, number> = {
+  Chailuv: -1,
+};
+
 // Leaderboard: every player, their submission status, predicted champion, and
 // score so far (correct advancement predictions vs. actual knockout results).
 export async function challengeBoard(): Promise<BoardRow[]> {
@@ -113,7 +121,7 @@ export async function challengeBoard(): Promise<BoardRow[]> {
       return {
         player,
         submitted: true,
-        score: scorePrediction(predicted, actual),
+        score: scorePrediction(predicted, actual) + (SCORE_ADJUSTMENTS[player] ?? 0),
         champion: predState.winner["104"] ?? null,
         updatedAt: sub.updatedAt,
       };
