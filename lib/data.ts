@@ -343,4 +343,6 @@ export const knockoutMatches: {
   { round: "r32", a: "NED", sa: 1, b: "MAR", sb: 1, pa: 2, pb: 3 },
   // June 30 — Round of 32. Norway beat Ivory Coast.
   { round: "r32", a: "NOR", sa: 2, b: "CIV", sb: 1 },
+  // June 30 — Round of 32. France cruise past Sweden.
+  { round: "r32", a: "FRA", sa: 3, b: "SWE", sb: 0 },
 ];
