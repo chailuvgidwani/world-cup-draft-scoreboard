@@ -20,6 +20,7 @@ function ScoreRow({
   name,
   owner,
   score,
+  pens,
   win,
   draw,
   gain,
@@ -28,6 +29,7 @@ function ScoreRow({
   name: string;
   owner: string | null;
   score: number;
+  pens?: number;
   win: boolean;
   draw: boolean;
   gain: number;
@@ -61,6 +63,11 @@ function ScoreRow({
       </div>
       <span className={`shrink-0 text-lg font-bold tabular-nums ${tone}`}>
         {score}
+        {pens != null && (
+          <span className="ml-1 text-xs font-semibold text-slate-400">
+            ({pens})
+          </span>
+        )}
       </span>
     </div>
   );
@@ -80,6 +87,7 @@ function MatchCard({ m, round }: { m: ResultRow; round?: string }) {
         name={m.aName}
         owner={ownerOf(m.a)}
         score={m.sa}
+        pens={m.pa}
         win={m.winner === m.a}
         draw={draw}
         gain={gain}
@@ -90,6 +98,7 @@ function MatchCard({ m, round }: { m: ResultRow; round?: string }) {
         name={m.bName}
         owner={ownerOf(m.b)}
         score={m.sb}
+        pens={m.pb}
         win={m.winner === m.b}
         draw={draw}
         gain={gain}

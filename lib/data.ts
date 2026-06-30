@@ -321,11 +321,24 @@ export const BRACKET_TREE: { id: string; round: KnockoutRound; from: [string, st
 
 // Knockout results. Add one object per completed knockout game; the winner's
 // progression and the loser's elimination are derived automatically (no need to
-// touch teamStatus). Knockouts can't draw — record the result after extra time /
-// penalties (the team that goes through is the winner).
-export const knockoutMatches: { round: KnockoutRound; a: string; sa: number; b: string; sb: number }[] = [
+// touch teamStatus). Knockouts can't draw — if the 90'/extra-time score is level,
+// record it as the draw it was and add the shootout tally in `pa`/`pb` (the team
+// that wins the shootout goes through).
+export const knockoutMatches: {
+  round: KnockoutRound;
+  a: string;
+  sa: number;
+  b: string;
+  sb: number;
+  pa?: number; // penalty-shootout goals for team a (only when sa === sb)
+  pb?: number; // penalty-shootout goals for team b
+}[] = [
   // June 28 — Round of 32. Canada knock out South Africa.
   { round: "r32", a: "CAN", sa: 1, b: "RSA", sb: 0 },
   // June 29 — Round of 32. Brazil edge Japan.
   { round: "r32", a: "BRA", sa: 2, b: "JPN", sb: 1 },
+  // June 29 — Round of 32. Paraguay knock out Germany 4-3 on penalties (1-1 after ET).
+  { round: "r32", a: "GER", sa: 1, b: "PAR", sb: 1, pa: 3, pb: 4 },
+  // June 29 — Round of 32. Morocco knock out the Netherlands 3-2 on penalties (1-1 after ET).
+  { round: "r32", a: "NED", sa: 1, b: "MAR", sb: 1, pa: 2, pb: 3 },
 ];

@@ -14,6 +14,25 @@ import {
   type KnockoutRound,
 } from "./data";
 
+// Knockout winner: decided by the 90'/extra-time score, falling back to the
+// penalty-shootout tally (pa/pb) when level. Null only if truly undecided.
+export function koWinner(m: {
+  a: string;
+  sa: number;
+  b: string;
+  sb: number;
+  pa?: number;
+  pb?: number;
+}): string | null {
+  if (m.sa > m.sb) return m.a;
+  if (m.sb > m.sa) return m.b;
+  if (m.pa != null && m.pb != null) {
+    if (m.pa > m.pb) return m.a;
+    if (m.pb > m.pa) return m.b;
+  }
+  return null;
+}
+
 // The stage a team reaches by WINNING a knockout match in the given round.
 const ROUND_ADVANCES_TO: Record<KnockoutRound, Stage> = {
   r32: "r16",
@@ -34,7 +53,7 @@ function knockoutState(): {
   for (const [code, st] of Object.entries(teamStatus)) reached[code] = st.reached;
   const knockedOut = new Set<string>();
   for (const m of knockoutMatches) {
-    const winner = m.sa > m.sb ? m.a : m.sb > m.sa ? m.b : null;
+    const winner = koWinner(m);
     const loser = winner === m.a ? m.b : winner === m.b ? m.a : null;
     if (winner) {
       const next = ROUND_ADVANCES_TO[m.round];
@@ -326,6 +345,8 @@ export type ResultRow = {
   bName: string;
   sa: number;
   sb: number;
+  pa?: number; // penalty-shootout goals (knockout draws decided on penalties)
+  pb?: number;
   winner: string | null; // team code of the winner, or null for a draw
 };
 
@@ -550,7 +571,7 @@ export function bracketData(): BracketData {
   const results = knockoutMatches.map((m) => ({
     a: m.a,
     b: m.b,
-    winner: m.sa > m.sb ? m.a : m.sb > m.sa ? m.b : m.a,
+    winner: koWinner(m) ?? m.a,
   }));
 
   return { managers: Object.keys(ROSTERS), teams, matches, results };
@@ -577,7 +598,9 @@ export function knockoutResultsByRound(): {
       bName: TEAMS[m.b]?.name ?? m.b,
       sa: m.sa,
       sb: m.sb,
-      winner: m.sa > m.sb ? m.a : m.sb > m.sa ? m.b : null,
+      pa: m.pa,
+      pb: m.pb,
+      winner: koWinner(m),
     });
   }
   const order: KnockoutRound[] = ["r32", "r16", "qf", "sf", "final"];
