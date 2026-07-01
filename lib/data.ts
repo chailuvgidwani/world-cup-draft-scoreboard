@@ -345,4 +345,6 @@ export const knockoutMatches: {
   { round: "r32", a: "NOR", sa: 2, b: "CIV", sb: 1 },
   // June 30 — Round of 32. France cruise past Sweden.
   { round: "r32", a: "FRA", sa: 3, b: "SWE", sb: 0 },
+  // June 30 — Round of 32. Mexico see off Ecuador.
+  { round: "r32", a: "MEX", sa: 2, b: "ECU", sb: 0 },
 ];
