@@ -347,4 +347,6 @@ export const knockoutMatches: {
   { round: "r32", a: "FRA", sa: 3, b: "SWE", sb: 0 },
   // June 30 — Round of 32. Mexico see off Ecuador.
   { round: "r32", a: "MEX", sa: 2, b: "ECU", sb: 0 },
+  // July 1 — Round of 32. England edge DR Congo.
+  { round: "r32", a: "ENG", sa: 2, b: "COD", sb: 1 },
 ];
