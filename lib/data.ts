@@ -349,4 +349,14 @@ export const knockoutMatches: {
   { round: "r32", a: "MEX", sa: 2, b: "ECU", sb: 0 },
   // July 1 — Round of 32. England edge DR Congo.
   { round: "r32", a: "ENG", sa: 2, b: "COD", sb: 1 },
+  // July 1 — Round of 32. Belgium beat Senegal 3-2 after extra time.
+  { round: "r32", a: "BEL", sa: 3, b: "SEN", sb: 2 },
+  // July 1 — Round of 32. United States shut out Bosnia & Herzegovina.
+  { round: "r32", a: "USA", sa: 2, b: "BIH", sb: 0 },
+  // July 2 — Round of 32. Spain cruise past Austria.
+  { round: "r32", a: "ESP", sa: 3, b: "AUT", sb: 0 },
+  // July 2 — Round of 32. Portugal edge Croatia.
+  { round: "r32", a: "POR", sa: 2, b: "CRO", sb: 1 },
+  // July 2 — Round of 32. Switzerland see off Algeria.
+  { round: "r32", a: "SUI", sa: 2, b: "ALG", sb: 0 },
 ];
