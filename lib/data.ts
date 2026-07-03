@@ -359,4 +359,6 @@ export const knockoutMatches: {
   { round: "r32", a: "POR", sa: 2, b: "CRO", sb: 1 },
   // July 2 — Round of 32. Switzerland see off Algeria.
   { round: "r32", a: "SUI", sa: 2, b: "ALG", sb: 0 },
+  // July 3 — Round of 32. Egypt knock out Australia 4-2 on penalties (1-1 after ET).
+  { round: "r32", a: "AUS", sa: 1, b: "EGY", sb: 1, pa: 2, pb: 4 },
 ];
