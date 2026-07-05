@@ -361,4 +361,14 @@ export const knockoutMatches: {
   { round: "r32", a: "SUI", sa: 2, b: "ALG", sb: 0 },
   // July 3 — Round of 32. Egypt knock out Australia 4-2 on penalties (1-1 after ET).
   { round: "r32", a: "AUS", sa: 1, b: "EGY", sb: 1, pa: 2, pb: 4 },
+  // July 3 — Round of 32. Argentina beat Cape Verde 3-2 after extra time.
+  { round: "r32", a: "ARG", sa: 3, b: "CPV", sb: 2 },
+  // July 3 — Round of 32. Colombia edge Ghana to complete the R32.
+  { round: "r32", a: "COL", sa: 1, b: "GHA", sb: 0 },
+  // July 4 — Round of 16. France see off Paraguay.
+  { round: "r16", a: "FRA", sa: 1, b: "PAR", sb: 0 },
+  // July 4 — Round of 16. Morocco rout Canada.
+  { round: "r16", a: "MAR", sa: 3, b: "CAN", sb: 0 },
+  // July 5 — Round of 16. Norway stun Brazil.
+  { round: "r16", a: "NOR", sa: 2, b: "BRA", sb: 0 },
 ];
