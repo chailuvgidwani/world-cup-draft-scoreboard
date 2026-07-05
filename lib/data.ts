@@ -297,6 +297,15 @@ export const knockoutFixtures: { id: string; round: KnockoutRound; date: string;
   { id: "86", round: "r32", date: "2026-07-03", a: "ARG", b: "CPV" },
   { id: "87", round: "r32", date: "2026-07-03", a: "COL", b: "GHA" },
   { id: "88", round: "r32", date: "2026-07-03", a: "AUS", b: "EGY" },
+  // Round of 16 — pairings added as each R32 result set the teams. Ids match the
+  // BRACKET_TREE match ids. (89 France, 90 Morocco, 91 Norway already played.)
+  { id: "92", round: "r16", date: "2026-07-05", a: "MEX", b: "ENG" },
+  { id: "93", round: "r16", date: "2026-07-06", a: "POR", b: "ESP" },
+  { id: "94", round: "r16", date: "2026-07-06", a: "USA", b: "BEL" },
+  { id: "95", round: "r16", date: "2026-07-07", a: "ARG", b: "EGY" },
+  { id: "96", round: "r16", date: "2026-07-07", a: "SUI", b: "COL" },
+  // Quarterfinals — added once both feeder winners are known.
+  { id: "97", round: "qf", date: "2026-07-09", a: "FRA", b: "MAR" },
 ];
 
 // Bracket wiring for the Round of 16 onward: each match is contested by the winners
