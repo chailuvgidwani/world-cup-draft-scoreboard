@@ -370,5 +370,5 @@ export const knockoutMatches: {
   // July 4 — Round of 16. Morocco rout Canada.
   { round: "r16", a: "MAR", sa: 3, b: "CAN", sb: 0 },
   // July 5 — Round of 16. Norway stun Brazil.
-  { round: "r16", a: "NOR", sa: 2, b: "BRA", sb: 0 },
+  { round: "r16", a: "NOR", sa: 2, b: "BRA", sb: 1 },
 ];
