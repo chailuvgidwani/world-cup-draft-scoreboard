@@ -306,6 +306,7 @@ export const knockoutFixtures: { id: string; round: KnockoutRound; date: string;
   { id: "96", round: "r16", date: "2026-07-07", a: "SUI", b: "COL" },
   // Quarterfinals — added once both feeder winners are known.
   { id: "97", round: "qf", date: "2026-07-09", a: "FRA", b: "MAR" },
+  { id: "99", round: "qf", date: "2026-07-11", a: "NOR", b: "ENG" },
 ];
 
 // Bracket wiring for the Round of 16 onward: each match is contested by the winners
@@ -380,4 +381,6 @@ export const knockoutMatches: {
   { round: "r16", a: "MAR", sa: 3, b: "CAN", sb: 0 },
   // July 5 — Round of 16. Norway stun Brazil.
   { round: "r16", a: "NOR", sa: 2, b: "BRA", sb: 1 },
+  // July 5 — Round of 16. England edge Mexico in a five-goal thriller.
+  { round: "r16", a: "ENG", sa: 3, b: "MEX", sb: 2 },
 ];
