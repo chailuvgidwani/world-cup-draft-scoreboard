@@ -306,7 +306,9 @@ export const knockoutFixtures: { id: string; round: KnockoutRound; date: string;
   { id: "96", round: "r16", date: "2026-07-07", a: "SUI", b: "COL" },
   // Quarterfinals — added once both feeder winners are known.
   { id: "97", round: "qf", date: "2026-07-09", a: "FRA", b: "MAR" },
+  { id: "98", round: "qf", date: "2026-07-10", a: "ESP", b: "BEL" },
   { id: "99", round: "qf", date: "2026-07-11", a: "NOR", b: "ENG" },
+  { id: "100", round: "qf", date: "2026-07-11", a: "ARG", b: "SUI" },
 ];
 
 // Bracket wiring for the Round of 16 onward: each match is contested by the winners
@@ -383,4 +385,10 @@ export const knockoutMatches: {
   { round: "r16", a: "NOR", sa: 2, b: "BRA", sb: 1 },
   // July 5 — Round of 16. England edge Mexico in a five-goal thriller.
   { round: "r16", a: "ENG", sa: 3, b: "MEX", sb: 2 },
+  // July 6 — Round of 16. Spain edge Portugal; Belgium rout the United States.
+  { round: "r16", a: "POR", sa: 0, b: "ESP", sb: 1 },
+  { round: "r16", a: "USA", sa: 1, b: "BEL", sb: 4 },
+  // July 7 — Round of 16. Argentina hold off Egypt; Switzerland beat Colombia 4-3 on penalties (0-0 after ET).
+  { round: "r16", a: "ARG", sa: 3, b: "EGY", sb: 2 },
+  { round: "r16", a: "SUI", sa: 0, b: "COL", sb: 0, pa: 4, pb: 3 },
 ];
