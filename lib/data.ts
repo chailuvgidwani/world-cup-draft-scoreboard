@@ -391,4 +391,15 @@ export const knockoutMatches: {
   // July 7 — Round of 16. Argentina hold off Egypt; Switzerland beat Colombia 4-3 on penalties (0-0 after ET).
   { round: "r16", a: "ARG", sa: 3, b: "EGY", sb: 2 },
   { round: "r16", a: "SUI", sa: 0, b: "COL", sb: 0, pa: 4, pb: 3 },
+  // July 9-11 — Quarterfinals. France and Spain win in normal time; England and
+  // Argentina need extra time.
+  { round: "qf", a: "FRA", sa: 2, b: "MAR", sb: 0 },
+  { round: "qf", a: "ESP", sa: 2, b: "BEL", sb: 1 },
+  { round: "qf", a: "NOR", sa: 1, b: "ENG", sb: 2 },
+  { round: "qf", a: "ARG", sa: 3, b: "SUI", sb: 1 },
+  // July 14-15 — Semifinals. Spain shut out France; Argentina edge England.
+  { round: "sf", a: "FRA", sa: 0, b: "ESP", sb: 2 },
+  { round: "sf", a: "ENG", sa: 1, b: "ARG", sb: 2 },
+  // July 19 — Final. Spain beat Argentina 1-0 after extra time to win the World Cup.
+  { round: "final", a: "ESP", sa: 1, b: "ARG", sb: 0 },
 ];
